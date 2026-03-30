@@ -1,0 +1,2192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tahoe Trip 🏔️ Apr 17–19</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2744;
+    --navy-light: #243358;
+    --navy-mid: #1e2e50;
+    --slate: #4a5568;
+    --slate-light: #718096;
+    --pine: #2d6a4f;
+    --pine-light: #40916c;
+    --pine-glow: #52b788;
+    --warm-white: #f8f7f4;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --text: #1a202c;
+    --text-muted: #718096;
+    --red: #e53e3e;
+    --red-light: #fed7d7;
+    --yellow: #d69e2e;
+    --yellow-light: #fefcbf;
+    --green: #38a169;
+    --green-light: #c6f6d5;
+    --shadow-sm: 0 1px 3px rgba(26,39,68,0.08), 0 1px 2px rgba(26,39,68,0.06);
+    --shadow: 0 4px 16px rgba(26,39,68,0.10), 0 2px 6px rgba(26,39,68,0.06);
+    --shadow-lg: 0 10px 40px rgba(26,39,68,0.14);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  .app-header {
+    background: var(--navy);
+    color: white;
+    padding: 16px 20px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 14px;
+  }
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+  }
+  .header-title span { color: var(--pine-glow); }
+  .header-subtitle { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .user-chip {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .user-chip:hover { background: rgba(255,255,255,0.2); }
+  .admin-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.6);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .admin-btn:hover, .admin-btn.active {
+    background: var(--pine);
+    border-color: var(--pine-glow);
+    color: white;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-top: 4px;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.15s;
+    border-radius: 6px 6px 0 0;
+  }
+  .tab-btn:hover { color: rgba(255,255,255,0.8); background: rgba(255,255,255,0.06); }
+  .tab-btn.active { color: white; border-bottom-color: var(--pine-glow); }
+
+  /* ── CONTENT ── */
+  .tab-content { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 17px;
+    color: var(--navy);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pinned-stat {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+    color: white;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-lg);
+  }
+  .pinned-stat-label { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+  .pinned-stat-value { font-family: 'DM Serif Display', serif; font-size: 28px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-top: 10px; }
+  .stat-chip {
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .stat-chip-val { font-size: 20px; font-weight: 600; }
+  .stat-chip-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: var(--navy-light); }
+  .btn-green { background: var(--pine); color: white; }
+  .btn-green:hover { background: var(--pine-light); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--slate); }
+  .btn-ghost:hover { background: var(--warm-white); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-danger:hover { background: #c53030; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-xs { padding: 3px 8px; font-size: 11px; }
+
+  /* ── FORMS ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group label { font-size: 12px; font-weight: 500; color: var(--slate); text-transform: uppercase; letter-spacing: 0.6px; }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: white;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { outline: none; border-color: var(--pine-light); box-shadow: 0 0 0 3px rgba(82,183,136,0.1); }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+
+  /* ── GUEST LIST ── */
+  .guest-table { width: 100%; border-collapse: collapse; }
+  .guest-table th {
+    text-align: left; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.7px; color: var(--text-muted); font-weight: 600;
+    padding: 8px 10px; border-bottom: 2px solid var(--border);
+  }
+  .guest-table td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .guest-table tr:last-child td { border-bottom: none; }
+  .guest-table tr:hover td { background: rgba(45,106,79,0.03); }
+  .guest-name-cell { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .rsvp-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .rsvp-confirmed { background: var(--green-light); color: var(--green); }
+  .rsvp-maybe { background: var(--yellow-light); color: var(--yellow); }
+  .rsvp-declined { background: var(--red-light); color: var(--red); }
+  .rsvp-no_response { background: #edf2f7; color: var(--slate); }
+  .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+  .notes-small { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-style: italic; }
+
+  /* ── TRAVEL ── */
+  .carpool-panel { background: var(--warm-white); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; }
+  .driver-row {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .driver-icon { font-size: 20px; }
+  .driver-info { flex: 1; }
+  .driver-name { font-weight: 600; font-size: 15px; }
+  .driver-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .rider-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .rider-tag {
+    background: var(--green-light);
+    color: var(--pine);
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+  }
+  .unassigned-tag { background: var(--red-light); color: var(--red); }
+  .arrival-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .arrival-row:last-child { border-bottom: none; }
+  .arrival-time { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--navy); min-width: 60px; }
+  .arrival-name { font-weight: 500; flex: 1; }
+  .travel-icon { font-size: 18px; }
+  .arrival-sub { font-size: 12px; color: var(--text-muted); }
+
+  /* ── ROOMS ── */
+  .rooms-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+  .room-card {
+    background: white;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.15s;
+  }
+  .room-card:hover { box-shadow: var(--shadow); }
+  .room-card.status-ok { border-left: 4px solid var(--green); }
+  .room-card.status-warn { border-left: 4px solid var(--yellow); }
+  .room-card.status-over { border-left: 4px solid var(--red); }
+  .room-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .room-name { font-weight: 600; font-size: 15px; }
+  .room-config { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .occupancy-bar { background: var(--border); border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
+  .occupancy-fill { height: 100%; border-radius: 4px; background: var(--green); transition: width 0.3s; }
+  .occupancy-fill.warn { background: var(--yellow); }
+  .occupancy-fill.over { background: var(--red); }
+  .room-guests { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .room-guest-tag { background: #edf2f7; border-radius: 12px; padding: 2px 10px; font-size: 12px; }
+  .floorplan-img { max-width: 100%; border-radius: var(--radius-sm); cursor: zoom-in; transition: transform 0.2s; }
+  .floorplan-img.zoomed { transform: scale(1.5); transform-origin: top left; cursor: zoom-out; }
+
+  /* ── CHECKLIST ── */
+  .checklist-section { margin-bottom: 20px; }
+  .checklist-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 10px;
+  }
+  .checklist-title { font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; }
+  .progress-bar { background: var(--border); border-radius: 4px; height: 6px; width: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--pine-glow); border-radius: 4px; transition: width 0.3s; }
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--border);
+    transition: opacity 0.2s;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item.done { opacity: 0.5; }
+  .checklist-item.done .item-name { text-decoration: line-through; }
+  .checklist-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--pine); cursor: pointer; flex-shrink: 0; }
+  .item-name { flex: 1; font-size: 14px; }
+  .item-qty { font-size: 12px; color: var(--text-muted); }
+  .add-item-row { display: flex; gap: 8px; margin-top: 10px; }
+  .add-item-row input { flex: 1; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(10px);
+    transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--navy); }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--slate); padding: 4px; }
+  .modal-body { padding: 20px 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+  /* ── WARNINGS ── */
+  .warning-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--yellow-light);
+    border-left: 4px solid var(--yellow);
+    border-radius: var(--radius-sm);
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .warning-icon { font-size: 16px; flex-shrink: 0; }
+  .error-item {
+    background: var(--red-light);
+    border-left-color: var(--red);
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state-text { font-size: 16px; margin-bottom: 6px; color: var(--slate); }
+  .empty-state-sub { font-size: 13px; }
+
+  /* ── TOAST ── */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast {
+    background: var(--navy);
+    color: white;
+    padding: 12px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    box-shadow: var(--shadow-lg);
+    animation: slideIn 0.2s ease;
+    max-width: 300px;
+  }
+  .toast.success { background: var(--pine); }
+  .toast.error { background: var(--red); }
+  @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* ── USER SELECT SCREEN ── */
+  .user-select-overlay {
+    position: fixed; inset: 0;
+    background: var(--navy);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .user-select-box {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .user-select-title { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--navy); margin-bottom: 6px; }
+  .user-select-sub { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+  .user-select-list { list-style: none; text-align: left; max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .user-select-item {
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    transition: background 0.1s;
+  }
+  .user-select-item:last-child { border-bottom: none; }
+  .user-select-item:hover { background: var(--warm-white); }
+  .user-select-item .rsvp-badge { float: right; }
+
+  /* ── FIREBASE NOTICE ── */
+  .firebase-notice {
+    background: #fff8e1;
+    border: 1px solid #f6c400;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .form-row.three { grid-template-columns: 1fr; }
+    .guest-table th:nth-child(3),
+    .guest-table td:nth-child(3) { display: none; }
+    .rooms-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .header-title { font-size: 18px; }
+    .tab-btn { padding: 8px 10px; font-size: 12px; }
+  }
+
+  /* ── MISC ── */
+  .badge { display: inline; font-size: 13px; }
+  .section-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5568' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px !important; }
+  .fw { width: 100%; }
+  .text-red { color: var(--red); }
+  .text-green { color: var(--green); }
+  .text-muted { color: var(--text-muted); }
+  .mt8 { margin-top: 8px; }
+  .mt12 { margin-top: 12px; }
+  .flex-between { display: flex; justify-content: space-between; align-items: center; }
+  .flex-gap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .hidden { display: none !important; }
+  .admin-only-notice {
+    text-align: center; color: var(--text-muted); padding: 30px;
+    font-style: italic; font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<!-- USER SELECT OVERLAY -->
+<div class="user-select-overlay" id="userSelectOverlay">
+  <div class="user-select-box">
+    <div class="user-select-title">🏔️ Tahoe Trip</div>
+    <div class="user-select-sub">April 17–19 · South Lake Tahoe<br>Who are you? Pick your name from the guest list.</div>
+    <ul class="user-select-list" id="userSelectList"></ul>
+    <button class="btn btn-ghost fw mt12" onclick="selectGuest('__admin__')" style="justify-content:center">I'm the organizer (admin)</button>
+  </div>
+</div>
+
+<!-- APP HEADER -->
+<header class="app-header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">🏔️ Tahoe <span>Apr 17–19</span></div>
+      <div class="header-subtitle">South Lake Tahoe Group Trip</div>
+    </div>
+    <div class="header-right">
+      <div class="user-chip" id="userChip" onclick="openUserSelect()">👤 You</div>
+      <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔑 Admin</button>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('guests')">👥 Guests</button>
+    <button class="tab-btn" onclick="switchTab('travel')">🚗 Travel</button>
+    <button class="tab-btn" onclick="switchTab('rooms')">🛏️ Rooms</button>
+    <button class="tab-btn" onclick="switchTab('checklist')">✅ Checklist</button>
+    <button class="tab-btn" onclick="switchTab('dashboard')">📋 Dashboard</button>
+  </nav>
+</header>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ════════════════════════════════ TAB 1: GUESTS ════════════════════════════════ -->
+<div class="tab-content active" id="tab-guests">
+  <div class="pinned-stat" id="guestStat">
+    <div class="pinned-stat-label">RSVP Status</div>
+    <div class="pinned-stat-value" id="guestStatVal">— of — confirmed</div>
+    <div class="stats-grid" id="guestStatsGrid"></div>
+  </div>
+
+  <div id="firebaseNotice" class="firebase-notice hidden">
+    ⚠️ <span>Firebase not configured — using local storage. Data won't sync across devices. See setup guide at bottom of source file.</span>
+  </div>
+
+  <div class="card">
+    <div class="section-actions">
+      <span class="card-title" style="margin-bottom:0">Guest List</span>
+      <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="exportGuestCSV()">⬇ Export CSV</button>
+        <button class="btn btn-green btn-sm admin-required" onclick="openGuestModal()">+ Add Guest</button>
+      </div>
+    </div>
+    <div id="guestListContainer">
+      <div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No guests yet</div><div class="empty-state-sub">Add your first guest above</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ TAB 2: TRAVEL ════════════════════════════════ -->
+<div class="tab-content" id="tab-travel">
+  <div class="card" id="carpoolSummaryCard">
+    <div class="card-title">🚗 Carpool Summary</div>
+    <div id="carpoolContent"><div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">No travel info yet</div></div></div>
+  </div>
+
+  <div class="card" id="airportArrivalsCard">
+    <div class="card-title">✈️ Airport Arrivals & Ground Transport</div>
+    <div id="airportArrivalsContent"><div class="text-muted" style="text-align:center;padding:20px;font-size:14px">No flyers yet</div></div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:14px">
+      <span class="card-title" style="margin-bottom:0">⏰ Arrival Timeline — Friday</span>
+      <button class="btn btn-ghost btn-sm" onclick="exportTravelCSV()">⬇ Export CSV</button>
+    </div>
+    <div id="arrivalTimeline"><div class="text-muted" style="text-align:center;padding:20px">No arrival data yet</div></div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:14px">
+      <span class="card-title" style="margin-bottom:0">🏁 Departure Timeline — Sunday</span>
+    </div>
+    <div id="departureTimeline"><div class="text-muted" style="text-align:center;padding:20px;font-size:14px">No departure data yet</div></div>
+  </div>
+
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:14px">
+      <span class="card-title" style="margin-bottom:0">My Travel Info</span>
+    </div>
+    <div id="myTravelSection">
+      <div class="text-muted" style="font-style:italic;font-size:14px">Select your name from the header to update your travel info.</div>
+    </div>
+  </div>
+
+  <div class="card admin-required-section hidden" id="allTravelCard">
+    <div class="card-title">All Guest Travel</div>
+    <div id="allTravelList"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ TAB 3: ROOMS ════════════════════════════════ -->
+<div class="tab-content" id="tab-rooms">
+  <div class="pinned-stat">
+    <div class="pinned-stat-label">Occupancy</div>
+    <div class="pinned-stat-value" id="roomOccupancyStat">— of — beds filled</div>
+  </div>
+
+  <div class="card admin-required-section hidden" id="roomAdminCard">
+    <div class="card-title">🔧 Room Management</div>
+    <div class="section-actions">
+      <button class="btn btn-green btn-sm" onclick="openRoomModal()">+ Add Room</button>
+      <button class="btn btn-ghost btn-sm" onclick="openBulkRoomModal()">+ Bulk Add Rooms</button>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer">📷 Upload Floorplan <input type="file" accept="image/*" onchange="uploadFloorplan(this)" hidden></label>
+    </div>
+  </div>
+
+  <div id="floorplanSection" class="hidden">
+    <div class="card">
+      <div class="card-title">🗺️ Floorplan Reference</div>
+      <img id="floorplanImg" class="floorplan-img" onclick="toggleZoom(this)" alt="Floorplan">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🛏️ Rooms</div>
+    <div id="roomsGrid" class="rooms-grid">
+      <div class="empty-state"><div class="empty-state-icon">🛏️</div><div class="empty-state-text">No rooms yet</div><div class="empty-state-sub admin-required">Add rooms above to get started</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ TAB 4: CHECKLIST ════════════════════════════════ -->
+<div class="tab-content" id="tab-checklist">
+  <div class="pinned-stat">
+    <div class="pinned-stat-label">Overall Progress</div>
+    <div class="pinned-stat-value" id="checklistOverallStat">0% complete</div>
+    <div class="occupancy-bar" style="margin-top:10px;background:rgba(255,255,255,0.2)"><div class="occupancy-fill" id="checklistOverallBar" style="background:var(--pine-glow);width:0%"></div></div>
+  </div>
+
+  <div id="checklistGuestView" class="card hidden">
+    <p style="font-size:14px;color:var(--text-muted);">Showing overall progress. Only the organizer can edit items.</p>
+  </div>
+
+  <div id="checklistContent"></div>
+</div>
+
+<!-- ════════════════════════════════ TAB 5: DASHBOARD ════════════════════════════════ -->
+<div class="tab-content" id="tab-dashboard">
+  <div class="stats-grid" style="margin-bottom:16px" id="dashboardStats"></div>
+
+  <div class="card" id="warningsCard">
+    <div class="card-title">⚠️ Warnings</div>
+    <div id="warningsList"><div class="text-muted" style="text-align:center;padding:16px;font-size:14px">✅ All clear!</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🕐 Next Arriving Guest</div>
+    <div id="nextArriving"><div class="text-muted" style="font-size:14px">No arrival data yet</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════ MODALS ════════════════════════════════ -->
+
+<!-- Guest Modal -->
+<div class="modal-overlay" id="guestModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="guestModalTitle">Add Guest</div>
+      <button class="modal-close" onclick="closeModal('guestModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="guestId">
+      <div class="form-row">
+        <div class="form-group"><label>Name *</label><input id="guestName" placeholder="Full name"></div>
+        <div class="form-group"><label>RSVP</label>
+          <select id="guestRsvp">
+            <option value="no_response">No Response</option>
+            <option value="confirmed">✅ Confirmed</option>
+            <option value="maybe">🤔 Maybe</option>
+            <option value="declined">❌ Declined</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input id="guestPhone" placeholder="Optional"></div>
+        <div class="form-group"><label>Email</label><input id="guestEmail" placeholder="Optional"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>Notes (dietary needs, +1 info, etc.)</label><textarea id="guestNotes" placeholder="Optional notes..."></textarea></div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:14px">
+          <input type="checkbox" id="guestBirthday" style="width:16px;height:16px"> 🎂 Birthday person
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('guestModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveGuest()">Save Guest</button>
+    </div>
+  </div>
+</div>
+
+<!-- Travel Modal -->
+<div class="modal-overlay" id="travelModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="travelModalTitle">Travel Info</div>
+      <button class="modal-close" onclick="closeModal('travelModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="travelGuestId">
+      <div class="form-row single">
+        <div class="form-group"><label>Travel Mode</label>
+          <select id="travelMode" onchange="updateTravelFields()">
+            <option value="TBD">TBD</option>
+            <option value="Driving">🚗 Driving</option>
+            <option value="Flying">✈️ Flying</option>
+            <option value="Needs a Ride">🙋 Needs a Ride</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div id="drivingFields" class="hidden">
+        <div class="form-row">
+          <div class="form-group"><label>Departure City</label><input id="depCity" placeholder="e.g. San Francisco"></div>
+          <div class="form-group"><label>Open Seats</label><input id="openSeats" type="number" min="0" max="10" placeholder="0"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.7px;margin:10px 0 6px;padding:6px 0;border-top:1px solid var(--border)">🗓️ Friday — Heading to Tahoe</div>
+        <div class="form-row">
+          <div class="form-group"><label>Departing Home</label><input id="friDepTimeDriving" type="time" placeholder="When leaving home"></div>
+          <div class="form-group"><label>Arriving Tahoe</label><input id="friArrTimeDriving" type="time" placeholder="ETA at cabin"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.7px;margin:10px 0 6px;padding:6px 0;border-top:1px solid var(--border)">🗓️ Sunday — Heading Home</div>
+        <div class="form-row">
+          <div class="form-group"><label>Departing Tahoe</label><input id="sunDepTimeDriving" type="time" placeholder="When leaving cabin"></div>
+          <div class="form-group"><label>Arriving Home</label><input id="sunArrTimeDriving" type="time" placeholder="ETA back home"></div>
+        </div>
+      </div>
+      <div id="flyingFields" class="hidden">
+        <div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.7px;margin:4px 0 6px;padding:6px 0;border-top:1px solid var(--border)">🗓️ Friday — Flying In</div>
+        <div class="form-row">
+          <div class="form-group"><label>Arrival Airport</label>
+            <select id="arrivalAirport">
+              <option value="">Select</option>
+              <option value="RNO">RNO – Reno</option>
+              <option value="SFO">SFO – San Francisco</option>
+              <option value="SMF">SMF – Sacramento</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Landing Time</label><input id="arrivalTimeFlying" type="time"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.7px;margin:10px 0 6px;padding:6px 0;border-top:1px solid var(--border)">🗓️ Sunday — Flying Out</div>
+        <div class="form-row">
+          <div class="form-group"><label>Departure Airport</label>
+            <select id="depAirport">
+              <option value="">Select</option>
+              <option value="RNO">RNO – Reno</option>
+              <option value="SFO">SFO – San Francisco</option>
+              <option value="SMF">SMF – Sacramento</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Takeoff Time</label><input id="sunDepTimeFlying" type="time"></div>
+        </div>
+        <div class="form-row single">
+          <div class="form-group"><label>Flight Notes (Sun)</label><input id="depDetailsFlying" placeholder="e.g. Alaska 412, connecting via SFO"></div>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.7px;margin:10px 0 6px;padding:6px 0;border-top:1px solid var(--border)">🚐 Ground Transport from Airport</div>
+        <div class="form-row single">
+          <div class="form-group"><label>How are you getting to the cabin?</label>
+            <select id="groundTransport" onchange="updateGroundFields()">
+              <option value="">TBD</option>
+              <option value="rental_solo">🚗 Renting a Car (solo)</option>
+              <option value="rental_sharing">🚗 Renting a Car (sharing — open seats)</option>
+              <option value="flyer_carpool">✈️ Carpooling with another flyer</option>
+              <option value="pickup">🙋 Getting picked up by a driver</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="rentalSharingFields" class="hidden">
+          <div class="form-row single">
+            <div class="form-group"><label>Open seats in rental</label><input id="rentalSeats" type="number" min="1" max="7" placeholder="e.g. 3"></div>
+          </div>
+        </div>
+        <div id="flyerCarpoolFields" class="hidden">
+          <div class="form-row single">
+            <div class="form-group"><label>Carpooling with (flyer)</label>
+              <select id="flyerCarpoolWith">
+                <option value="">Select a flyer...</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="rideFields" class="hidden">
+        <div class="form-row single">
+          <div class="form-group"><label>Preferred Driver</label>
+            <select id="preferredDriver">
+              <option value="unassigned">Unassigned</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('travelModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveTravel()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Room Modal -->
+<div class="modal-overlay" id="roomModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="roomModalTitle">Add Room</div>
+      <button class="modal-close" onclick="closeModal('roomModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="roomId">
+      <div class="form-row">
+        <div class="form-group"><label>Room Name/Label</label><input id="roomName" placeholder="e.g. Master Suite, Room 3"></div>
+        <div class="form-group"><label>Floor/Level</label><input id="roomFloor" placeholder="e.g. Main, Upper"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Bed Configuration</label><input id="roomBeds" placeholder="e.g. 1 King, 2 Queens"></div>
+        <div class="form-group"><label>Max Occupancy</label><input id="roomMax" type="number" min="1" max="20" placeholder="4"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>Notes</label><textarea id="roomNotes" placeholder="Optional"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('roomModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveRoom()">Save Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Room Modal -->
+<div class="modal-overlay" id="bulkRoomModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Bulk Add Rooms</div>
+      <button class="modal-close" onclick="closeModal('bulkRoomModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Name Prefix</label><input id="bulkPrefix" placeholder="e.g. Room, Bedroom, Suite"></div>
+        <div class="form-group"><label>Number of Rooms</label><input id="bulkCount" type="number" min="1" max="30" placeholder="5"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Bed Config (all same)</label><input id="bulkBeds" placeholder="e.g. 1 Queen"></div>
+        <div class="form-group"><label>Max Occupancy (each)</label><input id="bulkMax" type="number" min="1" max="10" placeholder="2"></div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group"><label>Floor (optional)</label><input id="bulkFloor" placeholder="e.g. Main"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('bulkRoomModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveBulkRooms()">Create Rooms</button>
+    </div>
+  </div>
+</div>
+
+<!-- Room Assign Modal -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="assignModalTitle">Assign to Room</div>
+      <button class="modal-close" onclick="closeModal('assignModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="assignRoomId">
+      <div class="form-row single">
+        <div class="form-group"><label>Add Guest to Room</label>
+          <select id="assignGuestSelect"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn btn-green" onclick="assignGuest()">Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checklist Item Modal -->
+<div class="modal-overlay" id="checklistItemModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Item</div>
+      <button class="modal-close" onclick="closeModal('checklistItemModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="checklistSection">
+      <div class="form-row">
+        <div class="form-group"><label>Item Name</label><input id="checklistItemName" placeholder="e.g. Hot dogs"></div>
+        <div class="form-group"><label>Quantity / Notes</label><input id="checklistItemQty" placeholder="e.g. 40 pack, 2 bags"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('checklistItemModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveChecklistItem()">Add Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Auth Modal -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔑 Admin Access</div>
+      <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Password</label><input type="password" id="adminPassword" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkAdminPassword()"></div>
+      <div id="adminError" class="text-red hidden" style="font-size:13px;margin-top:6px">Incorrect password</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('adminModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="checkAdminPassword()">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Confirm</div>
+      <button class="modal-close" onclick="closeModal('confirmModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirmMessage" style="font-size:15px"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('confirmModal')">Cancel</button>
+      <button class="btn btn-danger" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════════════
+const ADMIN_PASSWORD = 'tahoe2025';
+let isAdmin = sessionStorage.getItem('tahoeAdmin') === 'true';
+let currentUserId = localStorage.getItem('tahoeUser') || null;
+
+let db_guests = {};
+let db_travel = {};
+let db_rooms = {};
+let db_checklist = {};
+let db_floorplan = null;
+let usingLocalStorage = false;
+
+const CHECKLIST_SECTIONS = [
+  { id: 'friday_dinner', label: '🍕 Friday Dinner' },
+  { id: 'saturday_breakfast', label: '🥞 Saturday Breakfast' },
+  { id: 'saturday_lunch', label: '🥗 Saturday Lunch' },
+  { id: 'saturday_dinner', label: '🍖 Saturday Dinner' },
+  { id: 'sunday_breakfast', label: '☕ Sunday Breakfast' },
+  { id: 'snacks', label: '🧃 Snacks & Extras' },
+  { id: 'drinks', label: '🍺 Alcohol & Drinks' },
+];
+
+// ════════════════════════════════════════════════════════════
+// FIREBASE INIT
+// ════════════════════════════════════════════════════════════
+// Replace with your Firebase config to enable real-time sync
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCNyzSz00RMjYAJtT_ovClq3DBWC2eFRFQ",
+  authDomain: "tahoo-planner.firebaseapp.com",
+  databaseURL: "https://tahoo-planner-default-rtdb.firebaseio.com",
+  projectId: "tahoo-planner",
+  storageBucket: "tahoo-planner.firebasestorage.app",
+  messagingSenderId: "719702534718",
+  appId: "1:719702534718:web:51fa90c268416ef28d3f6f"
+};
+
+let firebaseDb = null;
+let firebaseRef = null;
+
+async function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey) {
+    usingLocalStorage = true;
+    document.getElementById('firebaseNotice').classList.remove('hidden');
+    loadFromLocalStorage();
+    return;
+  }
+  try {
+    const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const { getDatabase, ref, onValue, set, push, remove, update } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js');
+    const app = initializeApp(FIREBASE_CONFIG);
+    firebaseDb = getDatabase(app);
+    setupFirebaseListeners(ref, onValue, set, push, remove, update);
+  } catch(e) {
+    console.error('Firebase init failed:', e);
+    usingLocalStorage = true;
+    document.getElementById('firebaseNotice').classList.remove('hidden');
+    loadFromLocalStorage();
+  }
+}
+
+function setupFirebaseListeners(ref, onValue, set, push, remove, update) {
+  const tripRef = ref(firebaseDb, 'tahoe2025');
+  onValue(tripRef, (snapshot) => {
+    const data = snapshot.val() || {};
+    db_guests = data.guests || {};
+    db_travel = data.travel || {};
+    db_rooms = data.rooms || {};
+    db_checklist = data.checklist || {};
+    db_floorplan = data.floorplan || null;
+    renderAll();
+  });
+  window._fbRef = ref;
+  window._fbSet = set;
+  window._fbPush = push;
+  window._fbRemove = remove;
+  window._fbUpdate = update;
+}
+
+function loadFromLocalStorage() {
+  try {
+    db_guests = JSON.parse(localStorage.getItem('tahoeGuests') || '{}');
+    db_travel = JSON.parse(localStorage.getItem('tahoeTravel') || '{}');
+    db_rooms = JSON.parse(localStorage.getItem('tahoeRooms') || '{}');
+    db_checklist = JSON.parse(localStorage.getItem('tahoeChecklist') || '{}');
+    db_floorplan = localStorage.getItem('tahoeFloorplan') || null;
+  } catch(e) {}
+  renderAll();
+}
+
+function saveToLocalStorage() {
+  if (!usingLocalStorage) return;
+  localStorage.setItem('tahoeGuests', JSON.stringify(db_guests));
+  localStorage.setItem('tahoeTravel', JSON.stringify(db_travel));
+  localStorage.setItem('tahoeRooms', JSON.stringify(db_rooms));
+  localStorage.setItem('tahoeChecklist', JSON.stringify(db_checklist));
+  if (db_floorplan) localStorage.setItem('tahoeFloorplan', db_floorplan);
+}
+
+// ════════════════════════════════════════════════════════════
+// DATA HELPERS
+// ════════════════════════════════════════════════════════════
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+async function dbSet(path, value) {
+  if (usingLocalStorage) {
+    setNestedKey(db_guests, db_travel, db_rooms, db_checklist, path, value);
+    saveToLocalStorage();
+    renderAll();
+    return;
+  }
+  const { ref: r, set: s } = { ref: window._fbRef, set: window._fbSet };
+  await s(r(firebaseDb, path), value);
+}
+
+async function dbRemove(path) {
+  if (usingLocalStorage) {
+    removeNestedKey(path);
+    saveToLocalStorage();
+    renderAll();
+    return;
+  }
+  await window._fbRemove(window._fbRef(firebaseDb, path));
+}
+
+function setNestedKey(g, t, ro, c, path, value) {
+  const parts = path.replace('tahoe2025/','').split('/');
+  let obj;
+  if (parts[0] === 'guests') obj = db_guests;
+  else if (parts[0] === 'travel') obj = db_travel;
+  else if (parts[0] === 'rooms') obj = db_rooms;
+  else if (parts[0] === 'checklist') obj = db_checklist;
+  else if (parts[0] === 'floorplan') { db_floorplan = value; return; }
+  if (!obj) return;
+  for (let i = 1; i < parts.length - 1; i++) {
+    if (!obj[parts[i]]) obj[parts[i]] = {};
+    obj = obj[parts[i]];
+  }
+  if (parts.length > 1) obj[parts[parts.length - 1]] = value;
+}
+
+function removeNestedKey(path) {
+  const parts = path.replace('tahoe2025/','').split('/');
+  let obj;
+  if (parts[0] === 'guests') obj = db_guests;
+  else if (parts[0] === 'travel') obj = db_travel;
+  else if (parts[0] === 'rooms') obj = db_rooms;
+  else if (parts[0] === 'checklist') obj = db_checklist;
+  if (!obj) return;
+  for (let i = 1; i < parts.length - 1; i++) { obj = obj[parts[i]]; if (!obj) return; }
+  delete obj[parts[parts.length - 1]];
+}
+
+// ════════════════════════════════════════════════════════════
+// RENDER ALL
+// ════════════════════════════════════════════════════════════
+function renderAll() {
+  renderGuestList();
+  renderTravelTab();
+  renderRooms();
+  renderChecklist();
+  renderDashboard();
+  updateAdminUI();
+  renderFloorplan();
+}
+
+// ════════════════════════════════════════════════════════════
+// TAB NAVIGATION
+// ════════════════════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ════════════════════════════════════════════════════════════
+// USER / ADMIN
+// ════════════════════════════════════════════════════════════
+function updateAdminUI() {
+  document.getElementById('adminBtn').classList.toggle('active', isAdmin);
+  document.querySelectorAll('.admin-required').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  document.querySelectorAll('.admin-required-section').forEach(el => {
+    el.classList.toggle('hidden', !isAdmin);
+  });
+  const chip = document.getElementById('userChip');
+  if (currentUserId === '__admin__') {
+    chip.textContent = '🔑 Admin';
+  } else if (currentUserId && db_guests[currentUserId]) {
+    chip.textContent = '👤 ' + db_guests[currentUserId].name;
+  } else {
+    chip.textContent = '👤 Set Name';
+  }
+}
+
+function toggleAdmin() {
+  if (isAdmin) {
+    isAdmin = false;
+    sessionStorage.removeItem('tahoeAdmin');
+    updateAdminUI();
+    renderAll();
+    toast('Admin mode off');
+  } else {
+    openModal('adminModal');
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+  }
+}
+
+function checkAdminPassword() {
+  const pw = document.getElementById('adminPassword').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    sessionStorage.setItem('tahoeAdmin', 'true');
+    closeModal('adminModal');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminError').classList.add('hidden');
+    updateAdminUI();
+    renderAll();
+    toast('Admin mode enabled ✓', 'success');
+  } else {
+    document.getElementById('adminError').classList.remove('hidden');
+  }
+}
+
+function openUserSelect() {
+  renderUserSelectList();
+  document.getElementById('userSelectOverlay').style.display = 'flex';
+}
+
+function renderUserSelectList() {
+  const list = document.getElementById('userSelectList');
+  const guests = Object.entries(db_guests);
+  if (!guests.length) {
+    list.innerHTML = '<li class="user-select-item text-muted" style="text-align:center">No guests added yet</li>';
+    return;
+  }
+  list.innerHTML = guests.map(([id, g]) => `
+    <li class="user-select-item" onclick="selectGuest('${id}')">
+      ${g.birthday ? '🎂' : '👤'} ${esc(g.name)}
+      <span class="rsvp-badge rsvp-${g.rsvp || 'no_response'}">${rsvpLabel(g.rsvp)}</span>
+    </li>
+  `).join('');
+}
+
+function selectGuest(id) {
+  currentUserId = id;
+  localStorage.setItem('tahoeUser', id);
+  if (id === '__admin__') {
+    isAdmin = true;
+    sessionStorage.setItem('tahoeAdmin', 'true');
+  }
+  document.getElementById('userSelectOverlay').style.display = 'none';
+  updateAdminUI();
+  renderAll();
+  toast('Welcome! 👋', 'success');
+}
+
+// ════════════════════════════════════════════════════════════
+// GUEST LIST
+// ════════════════════════════════════════════════════════════
+function renderGuestList() {
+  const guests = Object.entries(db_guests);
+  const confirmed = guests.filter(([,g]) => g.rsvp === 'confirmed').length;
+  const maybe = guests.filter(([,g]) => g.rsvp === 'maybe').length;
+  const declined = guests.filter(([,g]) => g.rsvp === 'declined').length;
+  const noResp = guests.filter(([,g]) => !g.rsvp || g.rsvp === 'no_response').length;
+
+  document.getElementById('guestStatVal').textContent = `${confirmed} of ${guests.length} confirmed`;
+  document.getElementById('guestStatsGrid').innerHTML = `
+    <div class="stat-chip"><div class="stat-chip-val">${confirmed}</div><div class="stat-chip-lbl">✅ Confirmed</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${maybe}</div><div class="stat-chip-lbl">🤔 Maybe</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${declined}</div><div class="stat-chip-lbl">❌ Declined</div></div>
+    <div class="stat-chip"><div class="stat-chip-val">${noResp}</div><div class="stat-chip-lbl">⏳ No Response</div></div>
+  `;
+
+  const container = document.getElementById('guestListContainer');
+  if (!guests.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">No guests yet</div><div class="empty-state-sub">Add your first guest to get started</div></div>`;
+    return;
+  }
+
+  const isMe = (id) => id === currentUserId;
+  const canEdit = (id) => isAdmin || isMe(id);
+
+  container.innerHTML = `<table class="guest-table">
+    <thead><tr>
+      <th>Name</th>
+      <th>RSVP</th>
+      <th>Contact</th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody>${guests.map(([id, g]) => `
+      <tr>
+        <td>
+          <div class="guest-name-cell">
+            ${g.birthday ? '<span title="Birthday Person">🎂</span>' : ''}
+            ${esc(g.name)}
+            ${isMe(id) ? '<span style="font-size:11px;color:var(--pine);font-weight:600">(you)</span>' : ''}
+          </div>
+          ${g.notes ? `<div class="notes-small">${esc(g.notes)}</div>` : ''}
+        </td>
+        <td>
+          <span class="rsvp-badge rsvp-${g.rsvp || 'no_response'}">${rsvpLabel(g.rsvp)}</span>
+        </td>
+        <td style="font-size:13px;color:var(--text-muted)">
+          ${g.phone ? esc(g.phone) : ''}${g.phone && g.email ? '<br>' : ''}${g.email ? esc(g.email) : ''}
+          ${!g.phone && !g.email ? '—' : ''}
+        </td>
+        <td>
+          <div class="action-btns">
+            ${canEdit(id) ? `<button class="btn btn-ghost btn-xs" onclick="openGuestModal('${id}')">✏️</button>` : ''}
+            ${isMe(id) ? `
+              <select class="btn btn-ghost btn-xs" style="padding:3px 6px" onchange="quickUpdateRsvp('${id}', this.value)">
+                <option value="">RSVP…</option>
+                <option value="confirmed">✅ Yes</option>
+                <option value="maybe">🤔 Maybe</option>
+                <option value="declined">❌ No</option>
+              </select>` : ''}
+            ${isAdmin ? `<button class="btn btn-ghost btn-xs text-red" onclick="deleteGuest('${id}')">🗑️</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+function openGuestModal(id = null) {
+  document.getElementById('guestId').value = id || '';
+  document.getElementById('guestModalTitle').textContent = id ? 'Edit Guest' : 'Add Guest';
+  if (id && db_guests[id]) {
+    const g = db_guests[id];
+    document.getElementById('guestName').value = g.name || '';
+    document.getElementById('guestRsvp').value = g.rsvp || 'no_response';
+    document.getElementById('guestPhone').value = g.phone || '';
+    document.getElementById('guestEmail').value = g.email || '';
+    document.getElementById('guestNotes').value = g.notes || '';
+    document.getElementById('guestBirthday').checked = !!g.birthday;
+  } else {
+    ['guestName','guestPhone','guestEmail','guestNotes'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('guestRsvp').value = 'no_response';
+    document.getElementById('guestBirthday').checked = false;
+  }
+  openModal('guestModal');
+}
+
+async function saveGuest() {
+  const name = document.getElementById('guestName').value.trim();
+  if (!name) { toast('Name is required', 'error'); return; }
+  const id = document.getElementById('guestId').value || genId();
+  const guest = {
+    name,
+    rsvp: document.getElementById('guestRsvp').value,
+    phone: document.getElementById('guestPhone').value.trim(),
+    email: document.getElementById('guestEmail').value.trim(),
+    notes: document.getElementById('guestNotes').value.trim(),
+    birthday: document.getElementById('guestBirthday').checked,
+    createdAt: db_guests[id]?.createdAt || Date.now()
+  };
+  await dbSet(`tahoe2025/guests/${id}`, guest);
+  closeModal('guestModal');
+  toast('Guest saved ✓', 'success');
+}
+
+function deleteGuest(id) {
+  confirmAction(`Delete ${db_guests[id]?.name}? This cannot be undone.`, async () => {
+    await dbRemove(`tahoe2025/guests/${id}`);
+    await dbRemove(`tahoe2025/travel/${id}`);
+    // Remove from rooms
+    Object.keys(db_rooms).forEach(async (rId) => {
+      if (db_rooms[rId].guests && db_rooms[rId].guests.includes(id)) {
+        const updated = db_rooms[rId].guests.filter(g => g !== id);
+        await dbSet(`tahoe2025/rooms/${rId}/guests`, updated);
+      }
+    });
+    toast('Guest deleted');
+  });
+}
+
+async function quickUpdateRsvp(id, rsvp) {
+  if (!rsvp) return;
+  await dbSet(`tahoe2025/guests/${id}/rsvp`, rsvp);
+  toast('RSVP updated ✓', 'success');
+}
+
+function exportGuestCSV() {
+  const rows = [['Name','RSVP','Phone','Email','Notes','Birthday']];
+  Object.values(db_guests).forEach(g => {
+    rows.push([g.name, rsvpLabel(g.rsvp), g.phone||'', g.email||'', g.notes||'', g.birthday?'Yes':'']);
+  });
+  downloadCSV(rows, 'tahoe-guests.csv');
+}
+
+// ════════════════════════════════════════════════════════════
+// TRAVEL
+// ════════════════════════════════════════════════════════════
+function renderTravelTab() {
+  renderCarpoolSummary();
+  renderAirportArrivals();
+  renderArrivalTimeline();
+  renderDepartureTimeline();
+  renderMyTravel();
+  if (isAdmin) renderAllTravel();
+}
+
+function groundLabel(val) {
+  const map = {
+    rental_solo: '🚗 Renting solo',
+    rental_sharing: '🚗 Renting (sharing)',
+    flyer_carpool: '✈️ Flyer carpool',
+    pickup: '🙋 Getting picked up',
+    other: 'Other',
+    '': 'TBD'
+  };
+  return map[val] || 'TBD';
+}
+
+function renderAirportArrivals() {
+  const flyers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Flying');
+  const card = document.getElementById('airportArrivalsCard');
+
+  if (!flyers.length) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+
+  // Group by arrival airport
+  const byAirport = {};
+  flyers.forEach(([id, t]) => {
+    const airport = t.airport || 'Unknown';
+    if (!byAirport[airport]) byAirport[airport] = [];
+    byAirport[airport].push([id, t]);
+  });
+
+  // Sort each group by arrival time
+  Object.values(byAirport).forEach(arr => arr.sort((a,b) => (a[1].arrivalTimeFlying||'').localeCompare(b[1].arrivalTimeFlying||'')));
+
+  let html = '';
+
+  Object.entries(byAirport).forEach(([airport, group]) => {
+    // Build rental groups: people sharing a rental car
+    const rentalHosts = group.filter(([,t]) => t.groundTransport === 'rental_sharing');
+    const carpoolPairs = {}; // flyerCarpoolWith id -> [riders]
+    group.forEach(([id, t]) => {
+      if (t.groundTransport === 'flyer_carpool' && t.flyerCarpoolWith) {
+        if (!carpoolPairs[t.flyerCarpoolWith]) carpoolPairs[t.flyerCarpoolWith] = [];
+        carpoolPairs[t.flyerCarpoolWith].push(id);
+      }
+    });
+
+    html += `<div style="margin-bottom:20px">
+      <div style="font-weight:700;font-size:14px;color:var(--navy);background:var(--warm-white);padding:8px 12px;border-radius:var(--radius-sm);margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        ✈️ ${esc(airport)}
+        <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:4px">${group.length} flyer${group.length!==1?'s':''}</span>
+      </div>`;
+
+    // --- Rental cars with open seats ---
+    if (rentalHosts.length) {
+      html += `<div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.6px;margin:8px 0 6px">🚗 Rental Cars with Open Seats</div>`;
+      rentalHosts.forEach(([hostId, ht]) => {
+        const riders = (carpoolPairs[hostId] || []).map(rid => db_guests[rid]?.name || 'Unknown');
+        const seats = parseInt(ht.rentalSeats) || 0;
+        const spotsLeft = seats - riders.length;
+        html += `<div style="background:white;border:1px solid var(--border);border-left:4px solid var(--pine);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+            <div>
+              <span style="font-weight:600">${esc(db_guests[hostId]?.name||'Unknown')}</span>
+              <span style="font-size:12px;color:var(--text-muted);margin-left:8px">lands ${ht.arrivalTimeFlying ? fmtTime(ht.arrivalTimeFlying) : 'TBD'}</span>
+            </div>
+            <span style="font-size:12px;padding:3px 10px;border-radius:12px;background:${spotsLeft>0?'var(--green-light)':'var(--red-light)'};color:${spotsLeft>0?'var(--green)':'var(--red)'}">
+              ${spotsLeft > 0 ? spotsLeft + ' seat' + (spotsLeft!==1?'s':'') + ' open' : 'Full'}
+            </span>
+          </div>
+          ${riders.length ? `<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">${riders.map(n=>`<span style="background:#edf2f7;border-radius:12px;padding:2px 10px;font-size:12px">🧍 ${esc(n)}</span>`).join('')}</div>` : ''}
+        </div>`;
+      });
+    }
+
+    // --- All flyers sorted by time ---
+    html += `<div style="font-size:12px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.6px;margin:8px 0 6px">All Arrivals</div>`;
+    group.forEach(([id, t]) => {
+      const gt = t.groundTransport;
+      const carpoolHostName = gt === 'flyer_carpool' && t.flyerCarpoolWith ? db_guests[t.flyerCarpoolWith]?.name : null;
+      const isHost = rentalHosts.some(([hid]) => hid === id);
+      const riderCount = (carpoolPairs[id]||[]).length;
+
+      let groundBadge = '';
+      if (gt === 'rental_sharing') groundBadge = `<span style="background:var(--green-light);color:var(--pine);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:500">🚗 Rental host${riderCount?' · '+riderCount+' rider'+(riderCount!==1?'s':''):''}</span>`;
+      else if (gt === 'rental_solo') groundBadge = `<span style="background:#edf2f7;color:var(--slate);border-radius:12px;padding:2px 9px;font-size:11px">🚗 Rental (solo)</span>`;
+      else if (gt === 'flyer_carpool') groundBadge = `<span style="background:var(--yellow-light);color:var(--yellow);border-radius:12px;padding:2px 9px;font-size:11px">✈️ With ${esc(carpoolHostName||'?')}</span>`;
+      else if (gt === 'pickup') groundBadge = `<span style="background:#edf2f7;color:var(--slate);border-radius:12px;padding:2px 9px;font-size:11px">🙋 Getting picked up</span>`;
+      else groundBadge = `<span style="background:#edf2f7;color:var(--text-muted);border-radius:12px;padding:2px 9px;font-size:11px">⬜ Ground TBD</span>`;
+
+      html += `<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+        <div style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);min-width:54px">${t.arrivalTimeFlying ? fmtTime(t.arrivalTimeFlying) : '—'}</div>
+        <div style="flex:1;min-width:100px">
+          <span style="font-weight:500">${esc(db_guests[id]?.name||'Unknown')}</span>
+        </div>
+        <div>${groundBadge}</div>
+        ${(isAdmin || id === currentUserId) ? `<button class="btn btn-ghost btn-xs" onclick="openTravelModal('${id}')">✏️</button>` : ''}
+      </div>`;
+    });
+
+    // Uncoordinated flyers warning
+    const uncoordinated = group.filter(([,t]) => !t.groundTransport || t.groundTransport === '');
+    if (uncoordinated.length) {
+      html += `<div style="margin-top:8px;padding:8px 12px;background:var(--yellow-light);border-radius:var(--radius-sm);font-size:13px;color:var(--yellow)">
+        ⚠️ ${uncoordinated.length} flyer${uncoordinated.length!==1?'s':''} at ${esc(airport)} haven't set their ground transport yet
+      </div>`;
+    }
+
+    html += `</div>`;
+  });
+
+  document.getElementById('airportArrivalsContent').innerHTML = html;
+}
+
+function renderDepartureTimeline() {
+  // Driving: sunDepTimeDriving, Flying: sunDepTimeFlying
+  const entries = Object.entries(db_travel)
+    .filter(([,t]) => t.sunDepTimeDriving || t.sunDepTimeFlying)
+    .map(([id, t]) => ({
+      id,
+      name: db_guests[id]?.name || 'Unknown',
+      time: t.sunDepTimeDriving || t.sunDepTimeFlying || '',
+      mode: t.mode || 'TBD',
+      dest: t.mode === 'Driving' ? (t.depCity || '') : (t.depAirport || t.airport || ''),
+      arrHome: t.sunArrTimeDriving || ''
+    }))
+    .sort((a, b) => a.time.localeCompare(b.time));
+
+  const el = document.getElementById('departureTimeline');
+  if (!entries.length) {
+    el.innerHTML = `<div class="text-muted" style="text-align:center;padding:20px;font-size:14px">No Sunday departure times set yet</div>`;
+    return;
+  }
+
+  el.innerHTML = entries.map(e => `
+    <div class="arrival-row">
+      <div class="arrival-time">${fmtTime(e.time)}</div>
+      <div class="travel-icon">${travelIcon(e.mode)}</div>
+      <div>
+        <div class="arrival-name">${esc(e.name)}</div>
+        <div class="arrival-sub">${
+          e.mode === 'Driving'
+            ? (e.dest ? 'Heading to ' + esc(e.dest) : 'Driving home') + (e.arrHome ? ' · home ~' + fmtTime(e.arrHome) : '')
+            : e.dest ? 'Flying out of ' + esc(e.dest) : 'Flying out'
+        }</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCarpoolSummary() {
+  const drivers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Driving');
+  const riders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
+  const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
+  const totalRiders = riders.length;
+
+  if (!drivers.length && !riders.length) {
+    document.getElementById('carpoolContent').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">No carpool data yet</div><div class="empty-state-sub">Guests can add their travel info below</div></div>`;
+    return;
+  }
+
+  let html = `<div style="margin-bottom:10px;font-size:14px"><span class="text-green">🚗 ${totalSeats} seats offered</span> &nbsp;·&nbsp; <span class="${totalRiders > totalSeats ? 'text-red' : ''}">🙋 ${totalRiders} need rides</span></div>`;
+
+  drivers.forEach(([id, t]) => {
+    const gName = db_guests[id]?.name || 'Unknown';
+    // Find assigned riders
+    const assignedRiders = Object.entries(db_travel)
+      .filter(([,rt]) => rt.mode === 'Needs a Ride' && rt.preferredDriver === id)
+      .map(([rid]) => db_guests[rid]?.name || 'Unknown');
+    const seats = parseInt(t.openSeats) || 0;
+    html += `<div class="driver-row">
+      <div class="driver-icon">🚗</div>
+      <div class="driver-info">
+        <div class="driver-name">${esc(gName)}</div>
+        <div class="driver-sub">${t.depCity || 'Unknown city'} · ${seats} open seat${seats!==1?'s':''} · Fri depart ${t.friDepTimeDriving ? fmtTime(t.friDepTimeDriving) : 'TBD'} · Arrive ${t.friArrTimeDriving ? fmtTime(t.friArrTimeDriving) : 'TBD'}</div>
+        <div class="rider-tags">
+          ${assignedRiders.map(n => `<span class="rider-tag">${esc(n)}</span>`).join('')}
+          ${!assignedRiders.length ? '<span class="rider-tag" style="background:#f7fafc;color:var(--text-muted)">No riders assigned</span>' : ''}
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Unassigned riders
+  const unassigned = riders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  if (unassigned.length) {
+    html += `<div style="margin-top:10px;font-weight:500;font-size:13px;color:var(--red)">⚠️ Unassigned Riders:</div>`;
+    html += unassigned.map(([id]) => `<span class="rider-tag unassigned-tag" style="display:inline-block;margin:3px">${esc(db_guests[id]?.name || 'Unknown')}</span>`).join('');
+  }
+
+  document.getElementById('carpoolContent').innerHTML = html;
+}
+
+function renderArrivalTimeline() {
+  const entries = Object.entries(db_travel)
+    .filter(([,t]) => t.arrivalTime || t.friArrTimeDriving || t.arrivalTimeFlying)
+    .map(([id, t]) => ({
+      id, name: db_guests[id]?.name || 'Unknown',
+      time: t.arrivalTime || t.friArrTimeDriving || t.arrivalTimeFlying || '',
+      mode: t.mode || 'TBD',
+      origin: t.depCity || t.airport || ''
+    }))
+    .sort((a,b) => a.time.localeCompare(b.time));
+
+  if (!entries.length) {
+    document.getElementById('arrivalTimeline').innerHTML = `<div class="text-muted" style="text-align:center;padding:20px;font-size:14px">No arrival times set yet</div>`;
+    return;
+  }
+
+  document.getElementById('arrivalTimeline').innerHTML = entries.map(e => `
+    <div class="arrival-row">
+      <div class="arrival-time">${fmtTime(e.time)}</div>
+      <div class="travel-icon">${travelIcon(e.mode)}</div>
+      <div>
+        <div class="arrival-name">${esc(e.name)}</div>
+        <div class="arrival-sub">${e.origin ? esc(e.origin) : e.mode}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderMyTravel() {
+  const sec = document.getElementById('myTravelSection');
+  if (!currentUserId || currentUserId === '__admin__' || !db_guests[currentUserId]) {
+    sec.innerHTML = `<div class="text-muted" style="font-style:italic;font-size:14px">Select your name from the header to update your travel info.</div>`;
+    return;
+  }
+  const t = db_travel[currentUserId] || {};
+  const myName = db_guests[currentUserId]?.name;
+  sec.innerHTML = `
+    <p style="font-size:14px;margin-bottom:12px">Travel info for <strong>${esc(myName)}</strong>:</p>
+    <div style="background:var(--warm-white);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;font-size:14px">
+      ${t.mode ? `<div><strong>Mode:</strong> ${travelIcon(t.mode)} ${t.mode}</div>` : '<div class="text-muted">Not set</div>'}
+      ${t.depCity ? `<div><strong>From:</strong> ${esc(t.depCity)}</div>` : ''}
+      ${t.openSeats ? `<div><strong>Open seats:</strong> ${t.openSeats}</div>` : ''}
+      ${t.mode === 'Driving' ? `
+        ${t.friDepTimeDriving ? `<div><strong>Fri departs home:</strong> ${fmtTime(t.friDepTimeDriving)}</div>` : ''}
+        ${t.friArrTimeDriving ? `<div><strong>Fri arrives Tahoe:</strong> ${fmtTime(t.friArrTimeDriving)}</div>` : ''}
+        ${t.sunDepTimeDriving ? `<div><strong>Sun departs Tahoe:</strong> ${fmtTime(t.sunDepTimeDriving)}</div>` : ''}
+        ${t.sunArrTimeDriving ? `<div><strong>Sun arrives home:</strong> ${fmtTime(t.sunArrTimeDriving)}</div>` : ''}
+      ` : ''}
+      ${t.mode === 'Flying' ? `
+        ${t.airport ? `<div><strong>Arrives into:</strong> ${esc(t.airport)}</div>` : ''}
+        ${t.arrivalTimeFlying ? `<div><strong>Fri landing:</strong> ${fmtTime(t.arrivalTimeFlying)}</div>` : ''}
+        ${t.depAirport ? `<div><strong>Departs from:</strong> ${esc(t.depAirport)}</div>` : ''}
+        ${t.sunDepTimeFlying ? `<div><strong>Sun takeoff:</strong> ${fmtTime(t.sunDepTimeFlying)}</div>` : ''}
+        ${t.depDetailsFlying ? `<div><strong>Flight notes:</strong> ${esc(t.depDetailsFlying)}</div>` : ''}
+      ` : ''}
+      ${t.preferredDriver && t.preferredDriver !== 'unassigned' ? `<div><strong>Riding with:</strong> ${esc(db_guests[t.preferredDriver]?.name || '?')}</div>` : ''}
+    </div>
+    <button class="btn btn-green btn-sm" onclick="openTravelModal('${currentUserId}')">✏️ Update My Travel</button>
+  `;
+}
+
+function renderAllTravel() {
+  const list = document.getElementById('allTravelList');
+  const guests = Object.entries(db_guests);
+  if (!guests.length) { list.innerHTML = '<div class="text-muted" style="font-size:14px">No guests</div>'; return; }
+  list.innerHTML = `<table class="guest-table"><thead><tr><th>Guest</th><th>Mode</th><th>Details</th><th></th></tr></thead><tbody>
+    ${guests.map(([id, g]) => {
+      const t = db_travel[id] || {};
+      return `<tr>
+        <td>${esc(g.name)}</td>
+        <td>${t.mode ? travelIcon(t.mode)+' '+t.mode : '<span class="text-muted">TBD</span>'}</td>
+        <td style="font-size:13px;color:var(--text-muted)">${t.depCity||t.airport||''}</td>
+        <td><button class="btn btn-ghost btn-xs" onclick="openTravelModal('${id}')">✏️</button></td>
+      </tr>`;
+    }).join('')}
+  </tbody></table>`;
+}
+
+function openTravelModal(guestId) {
+  if (!isAdmin && guestId !== currentUserId) { toast('You can only edit your own travel info', 'error'); return; }
+  document.getElementById('travelGuestId').value = guestId;
+  const gName = db_guests[guestId]?.name || 'Guest';
+  document.getElementById('travelModalTitle').textContent = `Travel: ${gName}`;
+  const t = db_travel[guestId] || {};
+  document.getElementById('travelMode').value = t.mode || 'TBD';
+  document.getElementById('depCity').value = t.depCity || '';
+  document.getElementById('openSeats').value = t.openSeats || '';
+  document.getElementById('friDepTimeDriving').value = t.friDepTimeDriving || '';
+  document.getElementById('friArrTimeDriving').value = t.friArrTimeDriving || '';
+  document.getElementById('sunDepTimeDriving').value = t.sunDepTimeDriving || '';
+  document.getElementById('sunArrTimeDriving').value = t.sunArrTimeDriving || '';
+  document.getElementById('arrivalAirport').value = t.airport || '';
+  document.getElementById('arrivalTimeFlying').value = t.arrivalTimeFlying || '';
+  document.getElementById('depAirport').value = t.depAirport || '';
+  document.getElementById('sunDepTimeFlying').value = t.sunDepTimeFlying || '';
+  document.getElementById('depDetailsFlying').value = t.depDetailsFlying || '';
+  document.getElementById('groundTransport').value = t.groundTransport || '';
+  document.getElementById('rentalSeats').value = t.rentalSeats || '';
+  // Populate flyer carpool dropdown
+  const fcSel = document.getElementById('flyerCarpoolWith');
+  const flyers = Object.entries(db_travel).filter(([id, tt]) => tt.mode === 'Flying' && id !== guestId);
+  fcSel.innerHTML = '<option value="">Select a flyer...</option>' +
+    flyers.map(([id]) => `<option value="${id}" ${t.flyerCarpoolWith === id ? 'selected' : ''}>${esc(db_guests[id]?.name || id)} — ${db_travel[id]?.airport || '?'} ${db_travel[id]?.arrivalTimeFlying ? fmtTime(db_travel[id].arrivalTimeFlying) : ''}</option>`).join('');
+  updateGroundFields();
+
+  // Populate driver dropdown
+  const driverSel = document.getElementById('preferredDriver');
+  const drivers = Object.entries(db_travel).filter(([id, tt]) => tt.mode === 'Driving' && id !== guestId);
+  driverSel.innerHTML = '<option value="unassigned">Unassigned</option>' +
+    drivers.map(([id]) => `<option value="${id}" ${t.preferredDriver === id ? 'selected' : ''}>${esc(db_guests[id]?.name || id)}</option>`).join('');
+
+  updateTravelFields();
+  openModal('travelModal');
+}
+
+function updateTravelFields() {
+  const mode = document.getElementById('travelMode').value;
+  document.getElementById('drivingFields').classList.toggle('hidden', mode !== 'Driving');
+  document.getElementById('flyingFields').classList.toggle('hidden', mode !== 'Flying');
+  document.getElementById('rideFields').classList.toggle('hidden', mode !== 'Needs a Ride');
+}
+
+function updateGroundFields() {
+  const val = document.getElementById('groundTransport').value;
+  document.getElementById('rentalSharingFields').classList.toggle('hidden', val !== 'rental_sharing');
+  document.getElementById('flyerCarpoolFields').classList.toggle('hidden', val !== 'flyer_carpool');
+}
+
+async function saveTravel() {
+  const gId = document.getElementById('travelGuestId').value;
+  const mode = document.getElementById('travelMode').value;
+  const travel = { mode };
+  if (mode === 'Driving') {
+    travel.depCity = document.getElementById('depCity').value.trim();
+    travel.openSeats = parseInt(document.getElementById('openSeats').value) || 0;
+    travel.friDepTimeDriving = document.getElementById('friDepTimeDriving').value;
+    travel.friArrTimeDriving = document.getElementById('friArrTimeDriving').value;
+    travel.sunDepTimeDriving = document.getElementById('sunDepTimeDriving').value;
+    travel.sunArrTimeDriving = document.getElementById('sunArrTimeDriving').value;
+    travel.arrivalTime = travel.friArrTimeDriving;
+  } else if (mode === 'Flying') {
+    travel.airport = document.getElementById('arrivalAirport').value;
+    travel.arrivalTimeFlying = document.getElementById('arrivalTimeFlying').value;
+    travel.arrivalTime = travel.arrivalTimeFlying;
+    travel.depAirport = document.getElementById('depAirport').value;
+    travel.sunDepTimeFlying = document.getElementById('sunDepTimeFlying').value;
+    travel.depDetailsFlying = document.getElementById('depDetailsFlying').value.trim();
+    travel.groundTransport = document.getElementById('groundTransport').value;
+    travel.rentalSeats = parseInt(document.getElementById('rentalSeats').value) || 0;
+    travel.flyerCarpoolWith = document.getElementById('flyerCarpoolWith').value;
+  } else if (mode === 'Needs a Ride') {
+    travel.preferredDriver = document.getElementById('preferredDriver').value;
+  }
+  await dbSet(`tahoe2025/travel/${gId}`, travel);
+  closeModal('travelModal');
+  toast('Travel info saved ✓', 'success');
+}
+
+function exportTravelCSV() {
+  const rows = [['Name','Mode','Dep City','Open Seats','Fri Depart Home','Fri Arrive Tahoe','Sun Depart Tahoe','Sun Arrive Home','Arr Airport','Fri Landing','Dep Airport','Sun Takeoff','Flight Notes','Preferred Driver']];
+  Object.entries(db_guests).forEach(([id, g]) => {
+    const t = db_travel[id] || {};
+    rows.push([g.name, t.mode||'', t.depCity||'', t.openSeats||'',
+      t.friDepTimeDriving||'', t.friArrTimeDriving||'',
+      t.sunDepTimeDriving||'', t.sunArrTimeDriving||'',
+      t.airport||'', t.arrivalTimeFlying||'',
+      t.depAirport||'', t.sunDepTimeFlying||'', t.depDetailsFlying||'',
+      t.preferredDriver ? (db_guests[t.preferredDriver]?.name||t.preferredDriver) : '']);
+  });
+  downloadCSV(rows, 'tahoe-travel.csv');
+}
+
+// ════════════════════════════════════════════════════════════
+// ROOMS
+// ════════════════════════════════════════════════════════════
+function renderRooms() {
+  const rooms = Object.entries(db_rooms);
+  const totalBeds = rooms.reduce((s,[,r]) => s + (parseInt(r.max)||0), 0);
+  const filledBeds = rooms.reduce((s,[,r]) => s + ((r.guests||[]).length), 0);
+  document.getElementById('roomOccupancyStat').textContent = `${filledBeds} of ${totalBeds} beds filled`;
+
+  const grid = document.getElementById('roomsGrid');
+  if (!rooms.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🛏️</div><div class="empty-state-text">No rooms configured</div><div class="empty-state-sub">Admin can add rooms above</div></div>`;
+    return;
+  }
+
+  grid.innerHTML = rooms.map(([id, r]) => {
+    const guests = r.guests || [];
+    const max = parseInt(r.max) || 1;
+    const pct = Math.min(100, Math.round((guests.length / max) * 100));
+    const status = guests.length > max ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    const fillClass = status === 'over' ? 'over' : status === 'warn' ? 'warn' : '';
+    const statusEmoji = status === 'over' ? '🔴' : status === 'warn' ? '🟡' : '🟢';
+
+    return `<div class="room-card status-${status}">
+      <div class="room-header">
+        <div class="room-name">${statusEmoji} ${esc(r.name)}</div>
+        ${isAdmin ? `<div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-xs" onclick="openRoomModal('${id}')">✏️</button>
+          <button class="btn btn-ghost btn-xs text-red" onclick="deleteRoom('${id}')">🗑️</button>
+        </div>` : ''}
+      </div>
+      <div class="room-config">${r.floor ? r.floor+' · ' : ''}${esc(r.beds||'—')}</div>
+      <div style="font-size:12px;font-weight:500;color:var(--slate)">${guests.length} of ${max} filled</div>
+      <div class="occupancy-bar"><div class="occupancy-fill ${fillClass}" style="width:${Math.min(100,pct)}%"></div></div>
+      <div class="room-guests">
+        ${guests.map(gId => `
+          <span class="room-guest-tag">
+            ${esc(db_guests[gId]?.name || 'Unknown')}
+            ${isAdmin ? `<span onclick="removeFromRoom('${id}','${gId}')" style="cursor:pointer;color:var(--red);margin-left:3px">×</span>` : ''}
+          </span>
+        `).join('')}
+      </div>
+      ${r.notes ? `<div class="notes-small mt8">${esc(r.notes)}</div>` : ''}
+      ${isAdmin ? `<button class="btn btn-ghost btn-sm fw mt8" onclick="openAssignModal('${id}')">+ Assign Guest</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openRoomModal(id = null) {
+  document.getElementById('roomId').value = id || '';
+  document.getElementById('roomModalTitle').textContent = id ? 'Edit Room' : 'Add Room';
+  if (id && db_rooms[id]) {
+    const r = db_rooms[id];
+    document.getElementById('roomName').value = r.name || '';
+    document.getElementById('roomFloor').value = r.floor || '';
+    document.getElementById('roomBeds').value = r.beds || '';
+    document.getElementById('roomMax').value = r.max || '';
+    document.getElementById('roomNotes').value = r.notes || '';
+  } else {
+    ['roomName','roomFloor','roomBeds','roomNotes'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('roomMax').value = '';
+  }
+  openModal('roomModal');
+}
+
+async function saveRoom() {
+  const name = document.getElementById('roomName').value.trim();
+  if (!name) { toast('Room name required', 'error'); return; }
+  const id = document.getElementById('roomId').value || genId();
+  const room = {
+    name,
+    floor: document.getElementById('roomFloor').value.trim(),
+    beds: document.getElementById('roomBeds').value.trim(),
+    max: parseInt(document.getElementById('roomMax').value) || 2,
+    notes: document.getElementById('roomNotes').value.trim(),
+    guests: db_rooms[id]?.guests || []
+  };
+  await dbSet(`tahoe2025/rooms/${id}`, room);
+  closeModal('roomModal');
+  toast('Room saved ✓', 'success');
+}
+
+async function saveBulkRooms() {
+  const prefix = document.getElementById('bulkPrefix').value.trim() || 'Room';
+  const count = parseInt(document.getElementById('bulkCount').value) || 1;
+  const beds = document.getElementById('bulkBeds').value.trim();
+  const max = parseInt(document.getElementById('bulkMax').value) || 2;
+  const floor = document.getElementById('bulkFloor').value.trim();
+  const start = Object.keys(db_rooms).length + 1;
+  for (let i = 0; i < count; i++) {
+    const id = genId();
+    await dbSet(`tahoe2025/rooms/${id}`, { name: `${prefix} ${start+i}`, floor, beds, max, notes: '', guests: [] });
+  }
+  closeModal('bulkRoomModal');
+  toast(`${count} rooms added ✓`, 'success');
+}
+
+function deleteRoom(id) {
+  confirmAction(`Delete room "${db_rooms[id]?.name}"?`, async () => {
+    await dbRemove(`tahoe2025/rooms/${id}`);
+    toast('Room deleted');
+  });
+}
+
+function openAssignModal(roomId) {
+  document.getElementById('assignRoomId').value = roomId;
+  document.getElementById('assignModalTitle').textContent = `Assign to ${db_rooms[roomId]?.name}`;
+  const assigned = new Set(
+    Object.values(db_rooms).flatMap(r => r.guests || [])
+  );
+  const unassigned = Object.entries(db_guests).filter(([id]) => !assigned.has(id));
+  document.getElementById('assignGuestSelect').innerHTML =
+    '<option value="">Select guest...</option>' +
+    unassigned.map(([id, g]) => `<option value="${id}">${esc(g.name)}</option>`).join('');
+  openModal('assignModal');
+}
+
+async function assignGuest() {
+  const roomId = document.getElementById('assignRoomId').value;
+  const guestId = document.getElementById('assignGuestSelect').value;
+  if (!guestId) { toast('Select a guest', 'error'); return; }
+  const guests = [...(db_rooms[roomId]?.guests || []), guestId];
+  await dbSet(`tahoe2025/rooms/${roomId}/guests`, guests);
+  closeModal('assignModal');
+  toast('Guest assigned ✓', 'success');
+}
+
+async function removeFromRoom(roomId, guestId) {
+  const guests = (db_rooms[roomId]?.guests || []).filter(g => g !== guestId);
+  await dbSet(`tahoe2025/rooms/${roomId}/guests`, guests);
+  toast('Removed from room');
+}
+
+function uploadFloorplan(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    db_floorplan = e.target.result;
+    await dbSet('tahoe2025/floorplan', db_floorplan);
+    renderFloorplan();
+    toast('Floorplan uploaded ✓', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFloorplan() {
+  const sec = document.getElementById('floorplanSection');
+  if (db_floorplan) {
+    sec.classList.remove('hidden');
+    document.getElementById('floorplanImg').src = db_floorplan;
+  } else {
+    sec.classList.add('hidden');
+  }
+}
+
+function toggleZoom(img) {
+  img.classList.toggle('zoomed');
+}
+
+// ════════════════════════════════════════════════════════════
+// CHECKLIST
+// ════════════════════════════════════════════════════════════
+function renderChecklist() {
+  let totalItems = 0, totalDone = 0;
+
+  document.getElementById('checklistGuestView').classList.add('hidden');
+
+  const container = document.getElementById('checklistContent');
+  container.innerHTML = CHECKLIST_SECTIONS.map(section => {
+    const items = Object.entries(db_checklist[section.id] || {});
+    const done = items.filter(([,i]) => i.checked).length;
+    totalItems += items.length;
+    totalDone += done;
+    const pct = items.length ? Math.round((done/items.length)*100) : 0;
+
+    return `<div class="card checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-title">${section.label}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--text-muted)">${done}/${items.length}</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <div id="cl-${section.id}">
+        ${items.length ? items.map(([id, item]) => `
+          <div class="checklist-item ${item.checked ? 'done' : ''}">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleChecklistItem('${section.id}','${id}',this.checked)">
+            <div class="item-name">${esc(item.name)}</div>
+            ${item.qty ? `<div class="item-qty">${esc(item.qty)}</div>` : ''}
+            <button class="btn btn-ghost btn-xs text-red" onclick="deleteChecklistItem('${section.id}','${id}')">🗑️</button>
+          </div>
+        `).join('') : `<div class="text-muted" style="font-size:13px;padding:8px 0;font-style:italic">No items yet</div>`}
+      </div>
+      <button class="btn btn-ghost btn-sm mt8" onclick="openChecklistItemModal('${section.id}')">+ Add Item</button>
+    </div>`;
+  }).join('');
+
+  const pct = totalItems ? Math.round((totalDone/totalItems)*100) : 0;
+  document.getElementById('checklistOverallStat').textContent = `${pct}% complete (${totalDone}/${totalItems} items)`;
+  document.getElementById('checklistOverallBar').style.width = pct + '%';
+}
+
+function openChecklistItemModal(sectionId) {
+  document.getElementById('checklistSection').value = sectionId;
+  document.getElementById('checklistItemName').value = '';
+  document.getElementById('checklistItemQty').value = '';
+  openModal('checklistItemModal');
+  setTimeout(() => document.getElementById('checklistItemName').focus(), 100);
+}
+
+async function saveChecklistItem() {
+  const name = document.getElementById('checklistItemName').value.trim();
+  if (!name) { toast('Item name required', 'error'); return; }
+  const sId = document.getElementById('checklistSection').value;
+  const id = genId();
+  await dbSet(`tahoe2025/checklist/${sId}/${id}`, {
+    name,
+    qty: document.getElementById('checklistItemQty').value.trim(),
+    checked: false
+  });
+  closeModal('checklistItemModal');
+  toast('Item added ✓', 'success');
+}
+
+async function toggleChecklistItem(sId, itemId, checked) {
+  await dbSet(`tahoe2025/checklist/${sId}/${itemId}/checked`, checked);
+}
+
+function deleteChecklistItem(sId, itemId) {
+  confirmAction('Delete this item?', async () => {
+    await dbRemove(`tahoe2025/checklist/${sId}/${itemId}`);
+  });
+}
+
+// ════════════════════════════════════════════════════════════
+// DASHBOARD
+// ════════════════════════════════════════════════════════════
+function renderDashboard() {
+  const guests = Object.entries(db_guests);
+  const confirmed = guests.filter(([,g]) => g.rsvp === 'confirmed').length;
+  const rooms = Object.entries(db_rooms);
+  const totalBeds = rooms.reduce((s,[,r]) => s + (parseInt(r.max)||0), 0);
+  const filledBeds = rooms.reduce((s,[,r]) => s + ((r.guests||[]).length), 0);
+  const drivers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Driving');
+  const riders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
+  const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
+  let totalItems = 0, totalDone = 0;
+  CHECKLIST_SECTIONS.forEach(s => {
+    const items = Object.values(db_checklist[s.id] || {});
+    totalItems += items.length;
+    totalDone += items.filter(i => i.checked).length;
+  });
+  const checkPct = totalItems ? Math.round((totalDone/totalItems)*100) : 0;
+
+  document.getElementById('dashboardStats').innerHTML = `
+    <div class="card" style="margin:0;text-align:center">
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${confirmed}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Confirmed Guests</div>
+    </div>
+    <div class="card" style="margin:0;text-align:center">
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${filledBeds}/${totalBeds}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Beds Filled</div>
+    </div>
+    <div class="card" style="margin:0;text-align:center">
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${totalSeats}/${riders.length}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Seats / Riders</div>
+    </div>
+    <div class="card" style="margin:0;text-align:center">
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${checkPct}%</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Checklist Done</div>
+    </div>
+  `;
+
+  // Warnings
+  const warnings = [];
+  rooms.forEach(([,r]) => {
+    if ((r.guests||[]).length > parseInt(r.max||0)) {
+      warnings.push({ type: 'error', msg: `🔴 "${r.name}" is over capacity (${(r.guests||[]).length}/${r.max})` });
+    }
+  });
+  const unassigned = riders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  if (unassigned.length) {
+    warnings.push({ type: 'warn', msg: `🙋 ${unassigned.length} guest${unassigned.length>1?'s':''} need${unassigned.length===1?'s':''} a ride (unassigned)` });
+  }
+  if (totalSeats < riders.length) {
+    warnings.push({ type: 'warn', msg: `🚗 Not enough seats: ${totalSeats} seats for ${riders.length} riders` });
+  }
+  CHECKLIST_SECTIONS.forEach(s => {
+    if (!Object.keys(db_checklist[s.id]||{}).length) {
+      warnings.push({ type: 'warn', msg: `📋 ${s.label} checklist is empty` });
+    }
+  });
+
+  const warnContainer = document.getElementById('warningsList');
+  if (!warnings.length) {
+    warnContainer.innerHTML = '<div class="text-muted" style="text-align:center;padding:16px;font-size:14px">✅ All clear! No issues detected.</div>';
+  } else {
+    warnContainer.innerHTML = warnings.map(w => `
+      <div class="warning-item ${w.type === 'error' ? 'error-item' : ''}">
+        <span>${w.msg}</span>
+      </div>
+    `).join('');
+  }
+
+  // Next arriving
+  const arrivals = Object.entries(db_travel)
+    .filter(([,t]) => t.arrivalTime)
+    .map(([id, t]) => ({ name: db_guests[id]?.name || 'Unknown', time: t.arrivalTime }))
+    .sort((a,b) => a.time.localeCompare(b.time));
+
+  const nextDiv = document.getElementById('nextArriving');
+  if (arrivals.length) {
+    const next = arrivals[0];
+    nextDiv.innerHTML = `<div style="font-size:16px;font-weight:500">${esc(next.name)}</div><div style="color:var(--text-muted);font-size:13px;margin-top:4px">⏰ Arriving Friday at ${fmtTime(next.time)}</div>`;
+  } else {
+    nextDiv.innerHTML = `<div class="text-muted" style="font-size:14px">No arrival times set yet</div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// MODAL HELPERS
+// ════════════════════════════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+
+function openBulkRoomModal() { openModal('bulkRoomModal'); }
+
+// ════════════════════════════════════════════════════════════
+// CONFIRM DIALOG
+// ════════════════════════════════════════════════════════════
+let confirmCallback = null;
+function confirmAction(msg, cb) {
+  document.getElementById('confirmMessage').textContent = msg;
+  confirmCallback = cb;
+  openModal('confirmModal');
+  document.getElementById('confirmOkBtn').onclick = () => {
+    closeModal('confirmModal');
+    if (confirmCallback) confirmCallback();
+    confirmCallback = null;
+  };
+}
+
+// ════════════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════════════
+function toast(msg, type = '') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// ════════════════════════════════════════════════════════════
+// UTILS
+// ════════════════════════════════════════════════════════════
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function rsvpLabel(r) {
+  const map = { confirmed: '✅ Confirmed', maybe: '🤔 Maybe', declined: '❌ Declined', no_response: '⏳ No Response' };
+  return map[r] || '⏳ No Response';
+}
+function travelIcon(mode) {
+  const m = { Driving: '🚗', Flying: '✈️', 'Needs a Ride': '🙋', Other: '🚀', TBD: '❓' };
+  return m[mode] || '❓';
+}
+function fmtTime(t) {
+  if (!t) return '—';
+  try {
+    const [h, m] = t.split(':');
+    const hr = parseInt(h);
+    const ampm = hr >= 12 ? 'pm' : 'am';
+    return `${hr > 12 ? hr - 12 : hr || 12}:${m}${ampm}`;
+  } catch { return t; }
+}
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  // Check admin session
+  if (sessionStorage.getItem('tahoeAdmin') === 'true') isAdmin = true;
+  // Show user select if no user saved or first visit
+  if (!currentUserId) {
+    document.getElementById('userSelectOverlay').style.display = 'flex';
+  } else {
+    document.getElementById('userSelectOverlay').style.display = 'none';
+  }
+  initFirebase().then(() => {
+    renderUserSelectList(); // Update list after data loads
+    updateAdminUI();
+  });
+});
+
+// Keyboard shortcut: Escape to close modals
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  }
+});
+</script>
+
+<!--
+════════════════════════════════════════════════════════════════════════════
+FIREBASE SETUP GUIDE
+════════════════════════════════════════════════════════════════════════════
+
+TO ENABLE REAL-TIME SYNC FOR ALL USERS:
+
+1. Go to https://console.firebase.google.com/
+2. Click "Add project" → name it (e.g. "tahoe-trip-2025")
+3. Disable Google Analytics (optional) → Create project
+4. In the left sidebar: Build → Realtime Database
+5. Click "Create Database" → Start in TEST MODE (allows open access)
+   (For production, set rules to require auth or use a secret path)
+6. Click the gear icon → Project settings → scroll to "Your apps"
+7. Click </> (Web app) → Register app → copy the firebaseConfig object
+8. Paste the values into FIREBASE_CONFIG at the top of the <script> section:
+
+   const FIREBASE_CONFIG = {
+     apiKey: "AIzaSy...",
+     authDomain: "tahoe-trip-2025.firebaseapp.com",
+     databaseURL: "https://tahoe-trip-2025-default-rtdb.firebaseio.com",
+     projectId: "tahoe-trip-2025",
+   };
+
+9. Save the file and share the URL with all guests!
+
+SECURITY NOTE:
+- Firebase Realtime Database in test mode allows anyone with the URL to read/write.
+- This is fine for a private group trip where you share the app URL.
+- Admin actions are protected by the password "tahoe2025" in the app.
+- To change the admin password, search for ADMIN_PASSWORD in the script.
+
+DATABASE RULES (Realtime Database → Rules):
+For a group trip with no auth, use:
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}
+
+HOSTING:
+- Serve this HTML file from any static host: GitHub Pages, Netlify, Vercel, etc.
+- Or just share the file directly via Google Drive / Dropbox (open link).
+
+════════════════════════════════════════════════════════════════════════════
+-->
+
+</body>
+</html>
