@@ -1097,7 +1097,7 @@ function setNestedKey(g, t, ro, c, path, value) {
   else if (parts[0] === 'travel') obj = db_travel;
   else if (parts[0] === 'rooms') obj = db_rooms;
   else if (parts[0] === 'checklist') obj = db_checklist;
-  else if (parts[0] === 'floorplan') { db_floorplan_legacy = value; return; }
+  else if (parts[0] === 'floorplan') { return; } // legacy, ignore
   else if (parts[0] === 'floorplans') obj = db_floorplans;
   if (!obj) return;
   for (let i = 1; i < parts.length - 1; i++) {
@@ -1114,6 +1114,7 @@ function removeNestedKey(path) {
   else if (parts[0] === 'travel') obj = db_travel;
   else if (parts[0] === 'rooms') obj = db_rooms;
   else if (parts[0] === 'checklist') obj = db_checklist;
+  else if (parts[0] === 'floorplans') obj = db_floorplans;
   if (!obj) return;
   for (let i = 1; i < parts.length - 1; i++) { obj = obj[parts[i]]; if (!obj) return; }
   delete obj[parts[parts.length - 1]];
@@ -1952,14 +1953,16 @@ function replaceFloorplan(id, input) {
 async function deleteFloorplan(id) {
   const label = db_floorplans[id]?.label || 'this image';
   confirmAction(`Delete "${label}"? This cannot be undone.`, async () => {
+    // Immediately remove from local state and re-render so UI updates at once
     delete db_floorplans[id];
+    renderFloorplan();
+    document.querySelectorAll('input[type=file]').forEach(i => i.value = '');
+    // Then persist the deletion
     if (usingLocalStorage) {
       saveToLocalStorage();
-      renderFloorplan();
     } else {
       await dbRemove(`tahoe2025/floorplans/${id}`);
     }
-    document.querySelectorAll('input[type=file]').forEach(i => i.value = '');
     toast('Floorplan deleted');
   });
 }
