@@ -497,9 +497,16 @@
 <div class="user-select-overlay" id="userSelectOverlay">
   <div class="user-select-box">
     <div class="user-select-title">🏔️ Tahoe Trip</div>
-    <div class="user-select-sub">April 17–19 · South Lake Tahoe<br>Who are you? Pick your name from the guest list.</div>
-    <ul class="user-select-list" id="userSelectList"></ul>
-    <button class="btn btn-ghost fw mt12" onclick="selectGuest('__admin__')" style="justify-content:center">I'm the organizer (admin)</button>
+    <div class="user-select-sub">April 17–19 · South Lake Tahoe<br>Who are you? Pick your name from the list.</div>
+    <div style="position:relative;margin-bottom:10px">
+      <input id="userSearchInput" placeholder="🔍 Search your name..." oninput="filterUserList()"
+        style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:15px;outline:none;box-shadow:0 0 0 0px var(--pine-glow);transition:box-shadow 0.15s"
+        onfocus="this.style.boxShadow='0 0 0 3px rgba(82,183,136,0.18)';this.style.borderColor='var(--pine-light)'"
+        onblur="this.style.boxShadow='';this.style.borderColor='var(--border)'">
+    </div>
+    <ul class="user-select-list" id="userSelectList" style="max-height:320px"></ul>
+    <div id="userSelectEmpty" class="hidden" style="text-align:center;padding:20px;color:var(--text-muted);font-size:14px">No matching names found</div>
+    <button class="btn btn-ghost fw mt12" onclick="promptAdminFromSelect()" style="justify-content:center">I'm the organizer (admin)</button>
   </div>
 </div>
 
@@ -915,6 +922,7 @@
       <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
     </div>
     <div class="modal-body">
+      <input type="hidden" id="adminFromSelect" value="false">
       <div class="form-group"><label>Password</label><input type="password" id="adminPassword" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')checkAdminPassword()"></div>
       <div id="adminError" class="text-red hidden" style="font-size:13px;margin-top:6px">Incorrect password</div>
     </div>
@@ -1108,6 +1116,7 @@ function renderAll() {
   renderDashboard();
   updateAdminUI();
   renderFloorplan();
+  renderUserSelectList();
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1162,27 +1171,54 @@ function checkAdminPassword() {
     closeModal('adminModal');
     document.getElementById('adminPassword').value = '';
     document.getElementById('adminError').classList.add('hidden');
+    // If opened from the user select screen, complete that flow
+    const fromSelect = document.getElementById('adminFromSelect').value === 'true';
+    document.getElementById('adminFromSelect').value = 'false';
+    if (fromSelect) {
+      currentUserId = '__admin__';
+      localStorage.setItem('tahoeUser', '__admin__');
+      document.getElementById('userSelectOverlay').style.display = 'none';
+      toast('Welcome, organizer! 🔑', 'success');
+    } else {
+      toast('Admin mode enabled ✓', 'success');
+    }
     updateAdminUI();
     renderAll();
-    toast('Admin mode enabled ✓', 'success');
   } else {
     document.getElementById('adminError').classList.remove('hidden');
   }
 }
 
 function openUserSelect() {
+  const input = document.getElementById('userSearchInput');
+  if (input) input.value = '';
   renderUserSelectList();
   document.getElementById('userSelectOverlay').style.display = 'flex';
+  setTimeout(() => { if (input) input.focus(); }, 100);
 }
 
-function renderUserSelectList() {
+function renderUserSelectList(filter = '') {
   const list = document.getElementById('userSelectList');
-  const guests = Object.entries(db_guests);
+  const empty = document.getElementById('userSelectEmpty');
+  if (!list) return;
+  const guests = Object.entries(db_guests)
+    .sort((a, b) => a[1].name.localeCompare(b[1].name));
+  const filtered = filter
+    ? guests.filter(([, g]) => g.name.toLowerCase().includes(filter.toLowerCase()))
+    : guests;
+
   if (!guests.length) {
-    list.innerHTML = '<li class="user-select-item text-muted" style="text-align:center">No guests added yet</li>';
+    list.innerHTML = '<li class="user-select-item text-muted" style="text-align:center;font-style:italic">Loading guest list…</li>';
+    if (empty) empty.classList.add('hidden');
     return;
   }
-  list.innerHTML = guests.map(([id, g]) => `
+  if (!filtered.length) {
+    list.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+  if (empty) empty.classList.add('hidden');
+  list.innerHTML = filtered.map(([id, g]) => `
     <li class="user-select-item" onclick="selectGuest('${id}')">
       ${g.birthday ? '🎂' : '👤'} ${esc(g.name)}
       <span class="rsvp-badge rsvp-${g.rsvp || 'no_response'}">${rsvpLabel(g.rsvp)}</span>
@@ -1190,13 +1226,23 @@ function renderUserSelectList() {
   `).join('');
 }
 
+function filterUserList() {
+  const q = document.getElementById('userSearchInput')?.value || '';
+  renderUserSelectList(q);
+}
+
+function promptAdminFromSelect() {
+  // Show password modal; on success, complete the admin login
+  document.getElementById('adminFromSelect').value = 'true';
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('adminError').classList.add('hidden');
+  openModal('adminModal');
+  setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+}
+
 function selectGuest(id) {
   currentUserId = id;
   localStorage.setItem('tahoeUser', id);
-  if (id === '__admin__') {
-    isAdmin = true;
-    sessionStorage.setItem('tahoeAdmin', 'true');
-  }
   document.getElementById('userSelectOverlay').style.display = 'none';
   updateAdminUI();
   renderAll();
@@ -1229,6 +1275,7 @@ function renderGuestList() {
 
   const isMe = (id) => id === currentUserId;
   const canEdit = (id) => isAdmin || isMe(id);
+  const canDelete = (id) => isAdmin;
 
   container.innerHTML = `<table class="guest-table">
     <thead><tr>
@@ -1264,7 +1311,7 @@ function renderGuestList() {
                 <option value="maybe">🤔 Maybe</option>
                 <option value="declined">❌ No</option>
               </select>` : ''}
-            ${isAdmin ? `<button class="btn btn-ghost btn-xs text-red" onclick="deleteGuest('${id}')">🗑️</button>` : ''}
+            ${canDelete(id) ? `<button class="btn btn-ghost btn-xs text-red" onclick="deleteGuest('${id}')">🗑️</button>` : ''}
           </div>
         </td>
       </tr>
