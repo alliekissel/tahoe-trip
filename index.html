@@ -463,8 +463,8 @@
   @media (max-width: 600px) {
     .form-row { grid-template-columns: 1fr; }
     .form-row.three { grid-template-columns: 1fr; }
-    .guest-table th:nth-child(3),
-    .guest-table td:nth-child(3) { display: none; }
+
+
     .rooms-grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); }
     .header-title { font-size: 18px; }
@@ -485,6 +485,7 @@
   .flex-between { display: flex; justify-content: space-between; align-items: center; }
   .flex-gap { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .hidden { display: none !important; }
+
   .admin-only-notice {
     text-align: center; color: var(--text-muted); padding: 30px;
     font-style: italic; font-size: 14px;
@@ -1297,7 +1298,6 @@ function renderGuestList() {
       <th>Name</th>
       <th>RSVP</th>
       <th>Contact</th>
-      <th>Actions</th>
     </tr></thead>
     <tbody>${guests.map(([id, g]) => `
       <tr>
@@ -1306,6 +1306,8 @@ function renderGuestList() {
             ${g.birthday ? '<span title="Birthday Person">🎂</span>' : ''}
             ${esc(g.name)}
             ${isMe(id) ? '<span style="font-size:11px;color:var(--pine);font-weight:600">(you)</span>' : ''}
+            ${canEdit(id) ? `<button class="btn btn-ghost btn-xs" style="margin-left:4px" onclick="openGuestModal('${id}')">✏️</button>` : ''}
+            ${canDelete(id) ? `<button class="btn btn-ghost btn-xs text-red" onclick="deleteGuest('${id}')">🗑️</button>` : ''}
           </div>
           ${g.notes ? `<div class="notes-small">${esc(g.notes)}</div>` : ''}
         </td>
@@ -1315,19 +1317,6 @@ function renderGuestList() {
         <td style="font-size:13px;color:var(--text-muted)">
           ${g.phone ? esc(g.phone) : ''}${g.phone && g.email ? '<br>' : ''}${g.email ? esc(g.email) : ''}
           ${!g.phone && !g.email ? '—' : ''}
-        </td>
-        <td>
-          <div class="action-btns">
-            ${canEdit(id) ? `<button class="btn btn-ghost btn-xs" onclick="openGuestModal('${id}')">✏️</button>` : ''}
-            ${isMe(id) ? `
-              <select class="btn btn-ghost btn-xs" style="padding:3px 6px" onchange="quickUpdateRsvp('${id}', this.value)">
-                <option value="">RSVP…</option>
-                <option value="confirmed">✅ Yes</option>
-                <option value="maybe">🤔 Maybe</option>
-                <option value="declined">❌ No</option>
-              </select>` : ''}
-            ${canDelete(id) ? `<button class="btn btn-ghost btn-xs text-red" onclick="deleteGuest('${id}')">🗑️</button>` : ''}
-          </div>
         </td>
       </tr>
     `).join('')}</tbody>
