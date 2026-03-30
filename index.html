@@ -614,13 +614,22 @@
     <div class="section-actions">
       <button class="btn btn-green btn-sm" onclick="openRoomModal()">+ Add Room</button>
       <button class="btn btn-ghost btn-sm" onclick="openBulkRoomModal()">+ Bulk Add Rooms</button>
-      <label class="btn btn-ghost btn-sm" style="cursor:pointer">📷 Upload Floorplan <input type="file" accept="image/*" onchange="uploadFloorplan(this)" hidden></label>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer" id="uploadFloorplanBtn">📷 Upload Floorplan <input type="file" accept="image/*" onchange="uploadFloorplan(this)" hidden></label>
+      <button class="btn btn-ghost btn-sm" id="replaceFloorplanBtn" onclick="document.querySelector('#replaceFloorplanBtn + input').click()" style="display:none">🔄 Replace</button><input type="file" accept="image/*" onchange="uploadFloorplan(this)" hidden>
+      <button class="btn btn-ghost btn-sm text-red" id="deleteFloorplanBtn" onclick="deleteFloorplan()" style="display:none">🗑️ Delete</button>
     </div>
   </div>
 
   <div id="floorplanSection" class="hidden">
     <div class="card">
-      <div class="card-title">🗺️ Floorplan Reference</div>
+      <div class="flex-between" style="margin-bottom:12px">
+        <span class="card-title" style="margin-bottom:0">🗺️ Floorplan Reference</span>
+        <div class="flex-gap admin-required-section hidden">
+          <label class="btn btn-ghost btn-sm" style="cursor:pointer">🔄 Replace <input type="file" accept="image/*" onchange="uploadFloorplan(this)" hidden></label>
+          <button class="btn btn-ghost btn-sm text-red" onclick="deleteFloorplan()">🗑️ Delete</button>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Click image to zoom in/out</p>
       <img id="floorplanImg" class="floorplan-img" onclick="toggleZoom(this)" alt="Floorplan">
     </div>
   </div>
@@ -1907,13 +1916,31 @@ function uploadFloorplan(input) {
   reader.readAsDataURL(file);
 }
 
+async function deleteFloorplan() {
+  confirmAction('Delete the floorplan image? This cannot be undone.', async () => {
+    db_floorplan = null;
+    if (usingLocalStorage) {
+      localStorage.removeItem('tahoeFloorplan');
+      renderFloorplan();
+    } else {
+      await dbRemove('tahoe2025/floorplan');
+    }
+    // Reset any file inputs so the same file can be re-uploaded if needed
+    document.querySelectorAll('input[type=file]').forEach(i => i.value = '');
+    toast('Floorplan deleted');
+  });
+}
+
 function renderFloorplan() {
   const sec = document.getElementById('floorplanSection');
+  const uploadBtn = document.getElementById('uploadFloorplanBtn');
   if (db_floorplan) {
     sec.classList.remove('hidden');
     document.getElementById('floorplanImg').src = db_floorplan;
+    if (uploadBtn) uploadBtn.style.display = 'none';
   } else {
     sec.classList.add('hidden');
+    if (uploadBtn) uploadBtn.style.display = '';
   }
 }
 
