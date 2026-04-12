@@ -1552,20 +1552,27 @@ function renderDepartureTimeline() {
 
 function renderCarpoolSummary() {
   const drivers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Driving');
-  const riders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
-  const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
-  const totalRiders = riders.length;
 
-  if (!drivers.length && !riders.length) {
+  // Riders = anyone who explicitly needs a ground ride:
+  // 1. Travel mode "Needs a Ride" (driving carpool)
+  // 2. Flyers whose ground transport is "pickup" (getting picked up by a driver)
+  // 3. Flyers whose ground transport is unset/TBD (uncoordinated, still need something)
+  const driveRiders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
+  const airportRiders = Object.entries(db_travel).filter(([,t]) =>
+    t.mode === 'Flying' && (t.groundTransport === 'pickup' || !t.groundTransport)
+  );
+  const allRiders = [...driveRiders, ...airportRiders];
+  const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
+
+  if (!drivers.length && !allRiders.length) {
     document.getElementById('carpoolContent').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">No carpool data yet</div><div class="empty-state-sub">Guests can add their travel info below</div></div>`;
     return;
   }
 
-  let html = `<div style="margin-bottom:10px;font-size:14px"><span class="text-green">🚗 ${totalSeats} seats offered</span> &nbsp;·&nbsp; <span class="${totalRiders > totalSeats ? 'text-red' : ''}">🙋 ${totalRiders} need rides</span></div>`;
+  let html = `<div style="margin-bottom:10px;font-size:14px"><span class="text-green">🚗 ${totalSeats} seats offered</span> &nbsp;·&nbsp; <span class="${allRiders.length > totalSeats ? 'text-red' : ''}">🙋 ${allRiders.length} need rides</span></div>`;
 
   drivers.forEach(([id, t]) => {
     const gName = db_guests[id]?.name || 'Unknown';
-    // Find assigned riders
     const assignedRiders = Object.entries(db_travel)
       .filter(([,rt]) => rt.mode === 'Needs a Ride' && rt.preferredDriver === id)
       .map(([rid]) => db_guests[rid]?.name || 'Unknown');
@@ -1583,11 +1590,20 @@ function renderCarpoolSummary() {
     </div>`;
   });
 
-  // Unassigned riders
-  const unassigned = riders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
-  if (unassigned.length) {
-    html += `<div style="margin-top:10px;font-weight:500;font-size:13px;color:var(--red)">⚠️ Unassigned Riders:</div>`;
-    html += unassigned.map(([id]) => `<span class="rider-tag unassigned-tag" style="display:inline-block;margin:3px">${esc(db_guests[id]?.name || 'Unknown')}</span>`).join('');
+  // Unassigned drive riders
+  const unassignedDrive = driveRiders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  // Airport riders who haven't arranged pickup
+  const unassignedAirport = airportRiders;
+
+  if (unassignedDrive.length || unassignedAirport.length) {
+    html += `<div style="margin-top:12px;font-weight:500;font-size:13px;color:var(--red)">⚠️ Unassigned — need a ride:</div><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">`;
+    html += unassignedDrive.map(([id]) =>
+      `<span class="rider-tag unassigned-tag" title="Needs driving carpool">🚗 ${esc(db_guests[id]?.name || 'Unknown')}</span>`
+    ).join('');
+    html += unassignedAirport.map(([id, t]) =>
+      `<span class="rider-tag unassigned-tag" title="${t.groundTransport ? 'Needs pickup from airport' : 'Ground transport TBD'}">✈️ ${esc(db_guests[id]?.name || 'Unknown')}${t.airport ? ' ('+esc(t.airport)+')' : ''}</span>`
+    ).join('');
+    html += `</div>`;
   }
 
   document.getElementById('carpoolContent').innerHTML = html;
@@ -2073,7 +2089,9 @@ function renderDashboard() {
   const totalBeds = rooms.reduce((s,[,r]) => s + (parseInt(r.max)||0), 0);
   const filledBeds = rooms.reduce((s,[,r]) => s + ((r.guests||[]).length), 0);
   const drivers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Driving');
-  const riders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
+  const driveRiders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Needs a Ride');
+  const airportRiders = Object.entries(db_travel).filter(([,t]) => t.mode === 'Flying' && (t.groundTransport === 'pickup' || !t.groundTransport));
+  const riders = [...driveRiders, ...airportRiders];
   const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
   let totalItems = 0, totalDone = 0;
   CHECKLIST_SECTIONS.forEach(s => {
@@ -2109,12 +2127,16 @@ function renderDashboard() {
       warnings.push({ type: 'error', msg: `🔴 "${r.name}" is over capacity (${(r.guests||[]).length}/${r.max})` });
     }
   });
-  const unassigned = riders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
-  if (unassigned.length) {
-    warnings.push({ type: 'warn', msg: `🙋 ${unassigned.length} guest${unassigned.length>1?'s':''} need${unassigned.length===1?'s':''} a ride (unassigned)` });
+  const unassignedDrive = driveRiders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  const totalNeedingRide = riders.length;
+  if (unassignedDrive.length) {
+    warnings.push({ type: 'warn', msg: `🙋 ${unassignedDrive.length} guest${unassignedDrive.length>1?'s':''} need${unassignedDrive.length===1?'s':''} a driving carpool (unassigned)` });
   }
-  if (totalSeats < riders.length) {
-    warnings.push({ type: 'warn', msg: `🚗 Not enough seats: ${totalSeats} seats for ${riders.length} riders` });
+  if (airportRiders.length) {
+    warnings.push({ type: 'warn', msg: `✈️ ${airportRiders.length} flyer${airportRiders.length>1?'s':''} still need ground transport from the airport` });
+  }
+  if (totalSeats < totalNeedingRide) {
+    warnings.push({ type: 'warn', msg: `🚗 Not enough seats: ${totalSeats} offered for ${totalNeedingRide} people needing rides` });
   }
   CHECKLIST_SECTIONS.forEach(s => {
     if (!Object.keys(db_checklist[s.id]||{}).length) {
