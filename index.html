@@ -1563,25 +1563,36 @@ function renderCarpoolSummary() {
   );
   const allRiders = [...driveRiders, ...airportRiders];
   const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
+  // Seats remaining = total seats minus all assigned drive riders
+  const assignedCount = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned').length;
+  const seatsRemaining = Math.max(0, totalSeats - assignedCount);
 
   if (!drivers.length && !allRiders.length) {
     document.getElementById('carpoolContent').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">No carpool data yet</div><div class="empty-state-sub">Guests can add their travel info below</div></div>`;
     return;
   }
 
-  let html = `<div style="margin-bottom:10px;font-size:14px"><span class="text-green">🚗 ${totalSeats} seats offered</span> &nbsp;·&nbsp; <span class="${allRiders.length > totalSeats ? 'text-red' : ''}">🙋 ${allRiders.length} need rides</span></div>`;
+  const seatsColor = seatsRemaining === 0 && allRiders.length > 0 ? 'var(--red)' : 'var(--green)';
+  let html = `<div style="margin-bottom:10px;font-size:14px;display:flex;flex-wrap:wrap;gap:12px">
+    <span style="color:${seatsColor}">🚗 ${seatsRemaining} seat${seatsRemaining!==1?'s':''} remaining</span>
+    <span style="color:var(--text-muted);font-size:12px">(${totalSeats} total offered, ${assignedCount} filled)</span>
+    <span class="${allRiders.length > seatsRemaining ? 'text-red' : 'text-green'}">🙋 ${allRiders.length} need rides</span>
+  </div>`;
 
   drivers.forEach(([id, t]) => {
     const gName = db_guests[id]?.name || 'Unknown';
     const assignedRiders = Object.entries(db_travel)
       .filter(([,rt]) => rt.mode === 'Needs a Ride' && rt.preferredDriver === id)
       .map(([rid]) => db_guests[rid]?.name || 'Unknown');
-    const seats = parseInt(t.openSeats) || 0;
+    const totalSeatsCar = parseInt(t.openSeats) || 0;
+    const filledSeatsCar = assignedRiders.length;
+    const availSeatsCar = Math.max(0, totalSeatsCar - filledSeatsCar);
+    const seatColor = availSeatsCar === 0 ? 'var(--red)' : 'var(--green)';
     html += `<div class="driver-row">
       <div class="driver-icon">🚗</div>
       <div class="driver-info">
-        <div class="driver-name">${esc(gName)}</div>
-        <div class="driver-sub">${t.depCity || 'Unknown city'} · ${seats} open seat${seats!==1?'s':''} · Fri depart ${t.friDepTimeDriving ? fmtTime(t.friDepTimeDriving) : 'TBD'} · Arrive ${t.friArrTimeDriving ? fmtTime(t.friArrTimeDriving) : 'TBD'}</div>
+        <div class="driver-name">${esc(gName)} <span style="font-size:12px;font-weight:400;color:${seatColor};margin-left:4px">${availSeatsCar} seat${availSeatsCar!==1?'s':''} left of ${totalSeatsCar}</span></div>
+        <div class="driver-sub">${t.depCity || 'Unknown city'} · Fri depart ${t.friDepTimeDriving ? fmtTime(t.friDepTimeDriving) : 'TBD'} · Arrive ${t.friArrTimeDriving ? fmtTime(t.friArrTimeDriving) : 'TBD'}</div>
         <div class="rider-tags">
           ${assignedRiders.map(n => `<span class="rider-tag">${esc(n)}</span>`).join('')}
           ${!assignedRiders.length ? '<span class="rider-tag" style="background:#f7fafc;color:var(--text-muted)">No riders assigned</span>' : ''}
@@ -2111,8 +2122,8 @@ function renderDashboard() {
       <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Beds Filled</div>
     </div>
     <div class="card" style="margin:0;text-align:center">
-      <div style="font-size:32px;font-weight:700;color:var(--navy)">${totalSeats}/${riders.length}</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Seats / Riders</div>
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${Math.max(0,totalSeats-driveRiders.filter(([,t])=>t.preferredDriver&&t.preferredDriver!=='unassigned').length)}/${riders.length}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Seats Left / Riders</div>
     </div>
     <div class="card" style="margin:0;text-align:center">
       <div style="font-size:32px;font-weight:700;color:var(--navy)">${checkPct}%</div>
