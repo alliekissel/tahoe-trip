@@ -1423,23 +1423,23 @@ function renderAirportArrivals() {
   }
   card.style.display = '';
 
-  // Group by arrival airport
+  // All drivers (for pickup assignment dropdown)
+  const allDrivers = Object.entries(db_travel).filter(([,t]) => t.mode === 'Driving');
+
+  // Group flyers by arrival airport
   const byAirport = {};
   flyers.forEach(([id, t]) => {
     const airport = t.airport || 'Unknown';
     if (!byAirport[airport]) byAirport[airport] = [];
     byAirport[airport].push([id, t]);
   });
-
-  // Sort each group by arrival time
   Object.values(byAirport).forEach(arr => arr.sort((a,b) => (a[1].arrivalTimeFlying||'').localeCompare(b[1].arrivalTimeFlying||'')));
 
   let html = '';
 
   Object.entries(byAirport).forEach(([airport, group]) => {
-    // Build rental groups: people sharing a rental car
     const rentalHosts = group.filter(([,t]) => t.groundTransport === 'rental_sharing');
-    const carpoolPairs = {}; // flyerCarpoolWith id -> [riders]
+    const carpoolPairs = {};
     group.forEach(([id, t]) => {
       if (t.groundTransport === 'flyer_carpool' && t.flyerCarpoolWith) {
         if (!carpoolPairs[t.flyerCarpoolWith]) carpoolPairs[t.flyerCarpoolWith] = [];
@@ -1453,7 +1453,7 @@ function renderAirportArrivals() {
         <span style="font-size:12px;font-weight:400;color:var(--text-muted);margin-left:4px">${group.length} flyer${group.length!==1?'s':''}</span>
       </div>`;
 
-    // --- Rental cars with open seats ---
+    // Rental cars with open seats
     if (rentalHosts.length) {
       html += `<div style="font-size:12px;font-weight:600;color:var(--pine);text-transform:uppercase;letter-spacing:0.6px;margin:8px 0 6px">🚗 Rental Cars with Open Seats</div>`;
       rentalHosts.forEach(([hostId, ht]) => {
@@ -1475,32 +1475,61 @@ function renderAirportArrivals() {
       });
     }
 
-    // --- All flyers sorted by time ---
+    // All flyers list
     html += `<div style="font-size:12px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.6px;margin:8px 0 6px">All Arrivals</div>`;
     group.forEach(([id, t]) => {
       const gt = t.groundTransport;
       const carpoolHostName = gt === 'flyer_carpool' && t.flyerCarpoolWith ? db_guests[t.flyerCarpoolWith]?.name : null;
-      const isHost = rentalHosts.some(([hid]) => hid === id);
       const riderCount = (carpoolPairs[id]||[]).length;
+      const assignedDriver = t.airportPickupDriver && t.airportPickupDriver !== 'unassigned'
+        ? db_guests[t.airportPickupDriver]?.name : null;
 
       let groundBadge = '';
       if (gt === 'rental_sharing') groundBadge = `<span style="background:var(--green-light);color:var(--pine);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:500">🚗 Rental host${riderCount?' · '+riderCount+' rider'+(riderCount!==1?'s':''):''}</span>`;
       else if (gt === 'rental_solo') groundBadge = `<span style="background:#edf2f7;color:var(--slate);border-radius:12px;padding:2px 9px;font-size:11px">🚗 Rental (solo)</span>`;
       else if (gt === 'flyer_carpool') groundBadge = `<span style="background:var(--yellow-light);color:var(--yellow);border-radius:12px;padding:2px 9px;font-size:11px">✈️ With ${esc(carpoolHostName||'?')}</span>`;
-      else if (gt === 'pickup') groundBadge = `<span style="background:#edf2f7;color:var(--slate);border-radius:12px;padding:2px 9px;font-size:11px">🙋 Getting picked up</span>`;
-      else groundBadge = `<span style="background:#edf2f7;color:var(--text-muted);border-radius:12px;padding:2px 9px;font-size:11px">⬜ Ground TBD</span>`;
+      else if (gt === 'pickup') {
+        if (assignedDriver) {
+          groundBadge = `<span style="background:var(--green-light);color:var(--pine);border-radius:12px;padding:2px 9px;font-size:11px;font-weight:500">🚗 Pickup: ${esc(assignedDriver)}</span>`;
+        } else {
+          groundBadge = `<span style="background:var(--red-light);color:var(--red);border-radius:12px;padding:2px 9px;font-size:11px">🙋 Needs pickup — unassigned</span>`;
+        }
+      }
+      else groundBadge = `<span style="background:#fff3cd;color:var(--yellow);border-radius:12px;padding:2px 9px;font-size:11px">⬜ Ground TBD</span>`;
 
-      html += `<div style="display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-        <div style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);min-width:54px">${t.arrivalTimeFlying ? fmtTime(t.arrivalTimeFlying) : '—'}</div>
-        <div style="flex:1;min-width:100px">
-          <span style="font-weight:500">${esc(db_guests[id]?.name||'Unknown')}</span>
+      // Show assign-to-driver dropdown for pickup/TBD guests (admin only, or the guest themselves)
+      const needsAssignment = (gt === 'pickup' || !gt) && (isAdmin || id === currentUserId);
+      const driverOptions = allDrivers.map(([dId, dt]) => {
+        const seats = parseInt(dt.openSeats) || 0;
+        const filled = Object.values(db_travel).filter(rt => rt.mode === 'Needs a Ride' && rt.preferredDriver === dId).length;
+        const avail = Math.max(0, seats - filled);
+        return `<option value="${dId}" ${t.airportPickupDriver === dId ? 'selected' : ''}>${esc(db_guests[dId]?.name||dId)} (${avail} seat${avail!==1?'s':''})</option>`;
+      }).join('');
+
+      html += `<div style="padding:10px 4px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="font-family:'DM Serif Display',serif;font-size:16px;color:var(--navy);min-width:54px">${t.arrivalTimeFlying ? fmtTime(t.arrivalTimeFlying) : '—'}</div>
+          <div style="flex:1;min-width:120px">
+            <span style="font-weight:500">${esc(db_guests[id]?.name||'Unknown')}</span>
+            ${t.depDetailsFlying ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">📋 ${esc(t.depDetailsFlying)}</div>` : ''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            ${groundBadge}
+            ${(isAdmin || id === currentUserId) ? `<button class="btn btn-ghost btn-xs" onclick="openTravelModal('${id}')">✏️</button>` : ''}
+          </div>
         </div>
-        <div>${groundBadge}</div>
-        ${(isAdmin || id === currentUserId) ? `<button class="btn btn-ghost btn-xs" onclick="openTravelModal('${id}')">✏️</button>` : ''}
+        ${needsAssignment && allDrivers.length ? `
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <label style="font-size:12px;color:var(--slate);font-weight:500">Assign to driver:</label>
+          <select style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif" onchange="assignAirportPickup('${id}', this.value)">
+            <option value="unassigned" ${!t.airportPickupDriver || t.airportPickupDriver==='unassigned' ? 'selected' : ''}>— Unassigned —</option>
+            ${driverOptions}
+          </select>
+        </div>` : ''}
       </div>`;
     });
 
-    // Uncoordinated flyers warning
+    // Uncoordinated warning
     const uncoordinated = group.filter(([,t]) => !t.groundTransport || t.groundTransport === '');
     if (uncoordinated.length) {
       html += `<div style="margin-top:8px;padding:8px 12px;background:var(--yellow-light);border-radius:var(--radius-sm);font-size:13px;color:var(--yellow)">
@@ -1512,6 +1541,11 @@ function renderAirportArrivals() {
   });
 
   document.getElementById('airportArrivalsContent').innerHTML = html;
+}
+
+async function assignAirportPickup(guestId, driverId) {
+  await dbSet(`tahoe2025/travel/${guestId}/airportPickupDriver`, driverId);
+  toast(driverId === 'unassigned' ? 'Unassigned' : `Assigned to ${db_guests[driverId]?.name || 'driver'} ✓`, 'success');
 }
 
 function renderDepartureTimeline() {
@@ -1564,7 +1598,8 @@ function renderCarpoolSummary() {
   const allRiders = [...driveRiders, ...airportRiders];
   const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
   // Seats remaining = total seats minus all assigned drive riders
-  const assignedCount = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned').length;
+  const assignedCount = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned').length
+    + Object.values(db_travel).filter(t => t.mode === 'Flying' && t.airportPickupDriver && t.airportPickupDriver !== 'unassigned').length;
   const seatsRemaining = Math.max(0, totalSeats - assignedCount);
 
   if (!drivers.length && !allRiders.length) {
@@ -1582,8 +1617,8 @@ function renderCarpoolSummary() {
   drivers.forEach(([id, t]) => {
     const gName = db_guests[id]?.name || 'Unknown';
     const assignedRiders = Object.entries(db_travel)
-      .filter(([,rt]) => rt.mode === 'Needs a Ride' && rt.preferredDriver === id)
-      .map(([rid]) => db_guests[rid]?.name || 'Unknown');
+      .filter(([rid, rt]) => (rt.mode === 'Needs a Ride' && rt.preferredDriver === id) || (rt.mode === 'Flying' && rt.airportPickupDriver === id))
+      .map(([rid, rt]) => (rt.mode === 'Flying' ? '✈️ ' : '') + (db_guests[rid]?.name || 'Unknown'));
     const totalSeatsCar = parseInt(t.openSeats) || 0;
     const filledSeatsCar = assignedRiders.length;
     const availSeatsCar = Math.max(0, totalSeatsCar - filledSeatsCar);
