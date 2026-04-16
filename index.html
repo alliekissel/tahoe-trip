@@ -1595,23 +1595,32 @@ function renderCarpoolSummary() {
   const airportRiders = Object.entries(db_travel).filter(([,t]) =>
     t.mode === 'Flying' && (t.groundTransport === 'pickup' || !t.groundTransport)
   );
-  const allRiders = [...driveRiders, ...airportRiders];
   const totalSeats = drivers.reduce((s,[,t]) => s + (parseInt(t.openSeats)||0), 0);
-  // Seats remaining = total seats minus all assigned drive riders
-  const assignedCount = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned').length
-    + Object.values(db_travel).filter(t => t.mode === 'Flying' && t.airportPickupDriver && t.airportPickupDriver !== 'unassigned').length;
+
+  // Assigned = drive riders with a driver + airport riders with a pickup driver
+  const assignedDrive = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned');
+  const assignedAirport = airportRiders.filter(([,t]) => t.airportPickupDriver && t.airportPickupDriver !== 'unassigned');
+  const assignedCount = assignedDrive.length + assignedAirport.length;
+
+  // Unassigned = still need sorting
+  const unassignedDriveAll = driveRiders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  const unassignedAirportAll = airportRiders.filter(([,t]) => !t.airportPickupDriver || t.airportPickupDriver === 'unassigned');
+  const totalUnassigned = unassignedDriveAll.length + unassignedAirportAll.length;
+  const totalNeedingRides = driveRiders.length + airportRiders.length;
+
   const seatsRemaining = Math.max(0, totalSeats - assignedCount);
 
-  if (!drivers.length && !allRiders.length) {
+  if (!drivers.length && !totalNeedingRides) {
     document.getElementById('carpoolContent').innerHTML = `<div class="empty-state"><div class="empty-state-icon">🚗</div><div class="empty-state-text">No carpool data yet</div><div class="empty-state-sub">Guests can add their travel info below</div></div>`;
     return;
   }
 
-  const seatsColor = seatsRemaining === 0 && allRiders.length > 0 ? 'var(--red)' : 'var(--green)';
+  const seatsColor = seatsRemaining === 0 && totalNeedingRides > 0 ? 'var(--red)' : 'var(--green)';
+  const ridersColor = totalUnassigned > 0 ? 'text-red' : 'text-green';
   let html = `<div style="margin-bottom:10px;font-size:14px;display:flex;flex-wrap:wrap;gap:12px">
     <span style="color:${seatsColor}">🚗 ${seatsRemaining} seat${seatsRemaining!==1?'s':''} remaining</span>
-    <span style="color:var(--text-muted);font-size:12px">(${totalSeats} total offered, ${assignedCount} filled)</span>
-    <span class="${allRiders.length > seatsRemaining ? 'text-red' : 'text-green'}">🙋 ${allRiders.length} need rides</span>
+    <span style="color:var(--text-muted);font-size:12px">(${totalSeats} offered · ${assignedCount} filled)</span>
+    <span class="${ridersColor}">🙋 ${totalUnassigned} unassigned of ${totalNeedingRides} needing rides</span>
   </div>`;
 
   drivers.forEach(([id, t]) => {
@@ -1636,18 +1645,13 @@ function renderCarpoolSummary() {
     </div>`;
   });
 
-  // Unassigned drive riders
-  const unassignedDrive = driveRiders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
-  // Airport riders who haven't arranged pickup
-  const unassignedAirport = airportRiders;
-
-  if (unassignedDrive.length || unassignedAirport.length) {
+  if (unassignedDriveAll.length || unassignedAirportAll.length) {
     html += `<div style="margin-top:12px;font-weight:500;font-size:13px;color:var(--red)">⚠️ Unassigned — need a ride:</div><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">`;
-    html += unassignedDrive.map(([id]) =>
+    html += unassignedDriveAll.map(([id]) =>
       `<span class="rider-tag unassigned-tag" title="Needs driving carpool">🚗 ${esc(db_guests[id]?.name || 'Unknown')}</span>`
     ).join('');
-    html += unassignedAirport.map(([id, t]) =>
-      `<span class="rider-tag unassigned-tag" title="${t.groundTransport ? 'Needs pickup from airport' : 'Ground transport TBD'}">✈️ ${esc(db_guests[id]?.name || 'Unknown')}${t.airport ? ' ('+esc(t.airport)+')' : ''}</span>`
+    html += unassignedAirportAll.map(([id, t]) =>
+      `<span class="rider-tag unassigned-tag" title="${t.groundTransport === 'pickup' ? 'Needs pickup from airport' : 'Ground transport TBD'}">✈️ ${esc(db_guests[id]?.name || 'Unknown')}${t.airport ? ' ('+esc(t.airport)+')' : ''}</span>`
     ).join('');
     html += `</div>`;
   }
@@ -2157,7 +2161,7 @@ function renderDashboard() {
       <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Beds Filled</div>
     </div>
     <div class="card" style="margin:0;text-align:center">
-      <div style="font-size:32px;font-weight:700;color:var(--navy)">${Math.max(0,totalSeats-driveRiders.filter(([,t])=>t.preferredDriver&&t.preferredDriver!=='unassigned').length)}/${riders.length}</div>
+      <div style="font-size:32px;font-weight:700;color:var(--navy)">${Math.max(0,totalSeats-(driveRiders.filter(([,t])=>t.preferredDriver&&t.preferredDriver!=='unassigned').length+airportRiders.filter(([,t])=>t.airportPickupDriver&&t.airportPickupDriver!=='unassigned').length))}/${riders.length}</div>
       <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Seats Left / Riders</div>
     </div>
     <div class="card" style="margin:0;text-align:center">
@@ -2174,15 +2178,19 @@ function renderDashboard() {
     }
   });
   const unassignedDrive = driveRiders.filter(([,t]) => !t.preferredDriver || t.preferredDriver === 'unassigned');
+  const unassignedAirport = airportRiders.filter(([,t]) => !t.airportPickupDriver || t.airportPickupDriver === 'unassigned');
+  const assignedTotal = driveRiders.filter(([,t]) => t.preferredDriver && t.preferredDriver !== 'unassigned').length
+    + airportRiders.filter(([,t]) => t.airportPickupDriver && t.airportPickupDriver !== 'unassigned').length;
+  const seatsLeft = Math.max(0, totalSeats - assignedTotal);
   const totalNeedingRide = riders.length;
   if (unassignedDrive.length) {
     warnings.push({ type: 'warn', msg: `🙋 ${unassignedDrive.length} guest${unassignedDrive.length>1?'s':''} need${unassignedDrive.length===1?'s':''} a driving carpool (unassigned)` });
   }
-  if (airportRiders.length) {
-    warnings.push({ type: 'warn', msg: `✈️ ${airportRiders.length} flyer${airportRiders.length>1?'s':''} still need ground transport from the airport` });
+  if (unassignedAirport.length) {
+    warnings.push({ type: 'warn', msg: `✈️ ${unassignedAirport.length} flyer${unassignedAirport.length>1?'s':''} still need ground transport from the airport` });
   }
-  if (totalSeats < totalNeedingRide) {
-    warnings.push({ type: 'warn', msg: `🚗 Not enough seats: ${totalSeats} offered for ${totalNeedingRide} people needing rides` });
+  if (seatsLeft < (unassignedDrive.length + unassignedAirport.length)) {
+    warnings.push({ type: 'warn', msg: `🚗 Not enough seats: ${seatsLeft} remaining for ${unassignedDrive.length + unassignedAirport.length} unassigned riders` });
   }
   CHECKLIST_SECTIONS.forEach(s => {
     if (!Object.keys(db_checklist[s.id]||{}).length) {
