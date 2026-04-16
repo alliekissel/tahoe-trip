@@ -1623,6 +1623,10 @@ function renderCarpoolSummary() {
     <span class="${ridersColor}">🙋 ${totalUnassigned} unassigned of ${totalNeedingRides} needing rides</span>
   </div>`;
 
+  // ── Driving carpool cars ──
+  if (drivers.length) {
+    html += `<div style="font-size:12px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.6px;margin:10px 0 6px">🚗 Driving Carpools</div>`;
+  }
   drivers.forEach(([id, t]) => {
     const gName = db_guests[id]?.name || 'Unknown';
     const assignedRiders = Object.entries(db_travel)
@@ -1644,6 +1648,33 @@ function renderCarpoolSummary() {
       </div>
     </div>`;
   });
+
+  // ── Flight carpool groups (rental sharing + flyer-carpool pairs) ──
+  const rentalHosts = Object.entries(db_travel).filter(([,t]) => t.mode === 'Flying' && t.groundTransport === 'rental_sharing');
+  if (rentalHosts.length) {
+    html += `<div style="font-size:12px;font-weight:600;color:var(--slate);text-transform:uppercase;letter-spacing:0.6px;margin:14px 0 6px">✈️ Flight Carpools (Rental Cars)</div>`;
+    rentalHosts.forEach(([hostId, ht]) => {
+      const hostName = db_guests[hostId]?.name || 'Unknown';
+      const carpoolRiders = Object.entries(db_travel)
+        .filter(([rid, rt]) => rt.mode === 'Flying' && rt.groundTransport === 'flyer_carpool' && rt.flyerCarpoolWith === hostId)
+        .map(([rid]) => db_guests[rid]?.name || 'Unknown');
+      const totalSeatsRental = parseInt(ht.rentalSeats) || 0;
+      const filledSeatsRental = carpoolRiders.length;
+      const availSeatsRental = Math.max(0, totalSeatsRental - filledSeatsRental);
+      const seatColor = availSeatsRental === 0 ? 'var(--red)' : 'var(--green)';
+      html += `<div class="driver-row">
+        <div class="driver-icon">✈️</div>
+        <div class="driver-info">
+          <div class="driver-name">${esc(hostName)} <span style="font-size:12px;font-weight:400;color:${seatColor};margin-left:4px">${availSeatsRental} seat${availSeatsRental!==1?'s':''} left of ${totalSeatsRental}</span></div>
+          <div class="driver-sub">${ht.airport || '?'} · Lands ${ht.arrivalTimeFlying ? fmtTime(ht.arrivalTimeFlying) : 'TBD'} · Rental car</div>
+          <div class="rider-tags">
+            ${carpoolRiders.map(n => `<span class="rider-tag">${esc(n)}</span>`).join('')}
+            ${!carpoolRiders.length ? '<span class="rider-tag" style="background:#f7fafc;color:var(--text-muted)">No co-riders yet</span>' : ''}
+          </div>
+        </div>
+      </div>`;
+    });
+  }
 
   if (unassignedDriveAll.length || unassignedAirportAll.length) {
     html += `<div style="margin-top:12px;font-weight:500;font-size:13px;color:var(--red)">⚠️ Unassigned — need a ride:</div><div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">`;
